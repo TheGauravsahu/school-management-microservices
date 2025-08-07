@@ -1,9 +1,8 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 
-const { 
-    PORT, 
-    DB_URL 
-} = process.env;
+dotenv.config();
+
+const { PORT, DB_URL } = process.env;
 
 export const env = {
   PORT,

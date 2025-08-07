@@ -32,6 +32,7 @@ const authController = new AuthController(
 router.post(
   "/register",
   registerValidator,
+  authenticateToken,
   authorizeRoles([UserRole.ADMIN, UserRole.TEACHER]),
   asyncHandler(authController.register.bind(authController))
 );
@@ -50,7 +51,7 @@ router.get(
 
 router.post(
   "/refresh-token",
-  asyncHandler(authController.refresRefreshToken.bind(authController))
+  asyncHandler(authController.refreshAccessToken.bind(authController))
 );
 
 export default router;

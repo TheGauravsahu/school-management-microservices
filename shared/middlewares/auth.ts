@@ -19,7 +19,7 @@ export function authenticateToken(
     });
   }
 
-  const jwtSecret = env.ACCESS_TOKEN_SECRET;
+  const jwtSecret = env.ACCESS_TOKEN_SECRET as string;
   if (!jwtSecret) {
     return res.status(500).json({
       message: "JWT secret not configured",

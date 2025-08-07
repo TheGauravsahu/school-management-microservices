@@ -49,4 +49,9 @@ router.use(
   createServiceProxy(env.AUTH_SERVICE_URL!, { "^/": "/api/v1/auth/" })
 );
 
+router.use(
+  "/api/v1/students",
+  createServiceProxy(env.STUDENT_SERVICE_URL!, { "^/": "/api/v1/students/" })
+);
+
 export default router;

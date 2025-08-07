@@ -23,7 +23,11 @@ export class AuthController {
     // validate request body
     const result = validationResult(req);
     if (!result.isEmpty()) {
-      return res.status(400).json({ errors: result.array() });
+      return res.status(400).json({
+        success: false,
+        message: "Validation Error",
+        errors: result.array(),
+      });
     }
 
     const { email, password, role } = req.body;
@@ -189,7 +193,7 @@ export class AuthController {
     }
   }
 
-  async refresRefreshToken(req: Request, res: Response, next: NextFunction) {
+  async refreshAccessToken(req: Request, res: Response, next: NextFunction) {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
       this.logger.warn("Refresh token not provided");
