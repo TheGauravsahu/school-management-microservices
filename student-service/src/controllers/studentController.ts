@@ -9,6 +9,7 @@ import z from "zod";
 import { StudentQueryFilters } from "../types";
 import { PDFService } from "../services/pdfService";
 import { Parser } from "json2csv";
+import { generateExportFileName } from "../utils/fileNameGenerator";
 
 const SERVICE_NAME = "STUDENT_SERVICE";
 
@@ -171,17 +172,25 @@ export class StudentController {
         exportMode: true,
       };
 
+      // Fetch students with the applied filters
       const { students } = await this.studentService.getAllStudentsWithFilters(
         filters
       );
+
       const format = (req.query.format as string)?.toLowerCase() || "csv";
+      const fileName = generateExportFileName({
+        classNumber: filters.classNumber,
+        section: filters.section,
+        gender: filters.gender,
+        extension: format,
+      });
+
       if (format === "pdf") {
         const pdfBuffer = await this.pdfService.exportStudentsToPDF(students);
-
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader(
           "Content-Disposition",
-          "attachment; filename=students.pdf"
+          `attachment; filename=${fileName}`
         );
         return res.send(pdfBuffer);
       }
@@ -199,7 +208,7 @@ export class StudentController {
 
       const csv = parser.parse(studentsData);
       res.header("Content-Type", "text/csv");
-      res.attachment("students.csv");
+      res.attachment(fileName);
       res.send(csv);
     } catch (error) {
       this.logger.error("Error exporting students", error);
