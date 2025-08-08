@@ -54,4 +54,10 @@ router.post(
   asyncHandler(authController.refreshAccessToken.bind(authController))
 );
 
+router.post(
+  "/logout",
+  authenticateToken,
+  asyncHandler(authController.logout.bind(authController))
+);
+
 export default router;

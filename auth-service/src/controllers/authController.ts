@@ -240,4 +240,47 @@ export class AuthController {
       return;
     }
   }
+
+  async logout(req: Request, res: Response, next: NextFunction) {
+    const refreshToken =
+      req.cookies.refreshToken || req.headers["x-refresh-token"];
+    if (!refreshToken) {
+      this.logger.warn("Refresh token not provided for logout");
+      next(createHttpError(401, "Refresh token required"));
+      return;
+    }
+    this.logger.debug("Logging out user", { refreshToken });
+    try {
+      const payload = this.tokenService.verifyRefreshToken(refreshToken);
+      if (!payload) {
+        next(createHttpError(401, "Invalid refresh token"));
+        return;
+      }
+
+      const user = await this.userService.findById(payload.userId);
+      if (!user) {
+        this.logger.warn("User not found for logout", {
+          userId: payload.userId,
+        });
+        next(createHttpError(404, "User not found"));
+        return;
+      }
+
+      // Delete the refresh token from the DB
+      await this.tokenService.deleteRefreshToken(payload.tokenId);
+
+      // Optionally clear cookies
+      res.clearCookie("refreshToken");
+
+      return res.status(200).json({
+        success: true,
+        message: "User logged out successfully",
+        data_from: SERVICE_NAME,
+      });
+    } catch (error) {
+      this.logger.error("Error during logout", { error });
+      next(error);
+      return;
+    }
+  }
 }
