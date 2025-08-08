@@ -8,12 +8,18 @@ import { StudentController } from "../controllers/studentController";
 import { authorizeRoles } from "./../../../shared/middlewares/authorizeRoles";
 import { asyncHandler } from "../../../shared/middlewares/asyncHandler";
 import { UserRole } from "../../../shared/types";
+import { PDFService } from "../services/pdfService";
 
 const router: express.Router = express.Router();
 
 const studentRepository = new StudentRepostory(logger);
 const studentService = new StudentService(studentRepository, logger);
-const studentController = new StudentController(studentService, logger);
+const pdfService = new PDFService();
+const studentController = new StudentController(
+  studentService,
+  pdfService,
+  logger
+);
 
 router.post(
   "/",
@@ -26,6 +32,12 @@ router.get(
   "/",
   authorizeRoles([UserRole.ADMIN, UserRole.TEACHER]),
   asyncHandler(studentController.getAllStudents.bind(studentController))
+);
+
+router.get(
+  "/export",
+  // authorizeRoles([UserRole.ADMIN, UserRole.TEACHER]),
+  asyncHandler(studentController.exportStudents.bind(studentController))
 );
 
 router.get(

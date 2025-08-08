@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Students List</title>
+  <style>
+    body {
+      font-family: 'Helvetica', Arial, sans-serif;
+      color: #333;
+    }
+
+    h1 {
+      color: #1e3a8a; /* Dark blue */
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #ffffff;
+    }
+    th, td {
+      border: 1px solid #bfdbfe; /* Light blue border */
+      padding: 12px;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background: linear-gradient(180deg, #1e40af, #3b82f6); /* Blue gradient */
+      color: #ffffff;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    td {
+      color: #1e3a8a; /* Dark blue text */
+    }
+    tr:nth-child(even) {
+      background-color: #eff6ff; /* Very light blue */
+    }
+    tr:hover {
+      background-color: #dbeafe; /* Hover effect with light blue */
+    }
+    .header {
+      border-bottom: 2px solid #3b82f6;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="header">
+      <h1>School Microservices - Student Lists</h1>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Class</th>
+          <th>Section</th>
+          <th>Roll No</th>
+          <th>Email</th>
+          <th>Gender</th>
+          <th>Phone</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% students.forEach((s) => { %>
+          <tr>
+            <td><%= s.firstName %> <%= s.lastName %></td>
+            <td><%= s.class %></td>
+            <td><%= s.section %></td>
+            <td><%= s.rollNumber %></td>
+            <td><%= s.email %></td>
+            <td><%= s.gender %></td>
+            <td><%= s.mobileNumber %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

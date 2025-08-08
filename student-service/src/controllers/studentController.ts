@@ -7,11 +7,17 @@ import {
 } from "../validators/student.validator";
 import z from "zod";
 import { StudentQueryFilters } from "../types";
+import { PDFService } from "../services/pdfService";
+import { Parser } from "json2csv";
 
 const SERVICE_NAME = "STUDENT_SERVICE";
 
 export class StudentController {
-  constructor(private studentService: StudentService, private logger: Logger) {}
+  constructor(
+    private studentService: StudentService,
+    private pdfService: PDFService,
+    private logger: Logger
+  ) {}
 
   async createStudent(req: Request, res: Response, next: NextFunction) {
     try {
@@ -150,6 +156,53 @@ export class StudentController {
       });
     } catch (error) {
       this.logger.error("Error deleting student", error);
+      next(error);
+    }
+  }
+
+  async exportStudents(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = studentQuerySchema.parse(req.query);
+
+      const filters: StudentQueryFilters = {
+        classNumber: parsed.classNumber,
+        section: parsed.section,
+        gender: parsed.gender,
+        exportMode: true,
+      };
+
+      const { students } = await this.studentService.getAllStudentsWithFilters(
+        filters
+      );
+      const format = (req.query.format as string)?.toLowerCase() || "csv";
+      if (format === "pdf") {
+        const pdfBuffer = await this.pdfService.exportStudentsToPDF(students);
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+          "Content-Disposition",
+          "attachment; filename=students.pdf"
+        );
+        return res.send(pdfBuffer);
+      }
+
+      // CSV fallback
+      const parser = new Parser();
+      const studentsData = students.map((student) => ({
+        name: `${student.firstName} ${student.lastName}`,
+        classNumber: student.class,
+        section: student.section,
+        rollNumber: student.rollNumber,
+        mobileNumber: student.mobileNumber,
+        email: student.email,
+      }));
+
+      const csv = parser.parse(studentsData);
+      res.header("Content-Type", "text/csv");
+      res.attachment("students.csv");
+      res.send(csv);
+    } catch (error) {
+      this.logger.error("Error exporting students", error);
       next(error);
     }
   }
