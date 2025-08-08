@@ -3,6 +3,7 @@ import helmet from "helmet";
 import studentRouter from "./routes/student";
 import { requestLogger } from "../../shared/middlewares/requestLogger";
 import { errorHandler } from "../../shared/middlewares/errorHandler";
+import { authenticateToken } from "../../shared/middlewares/auth";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -19,7 +20,7 @@ app.get("/", (_, res) => {
   res.send("Welcome to Student service.");
 });
 
-app.use("/api/v1/students", studentRouter);
+app.use("/api/v1/students", authenticateToken, studentRouter);
 
 // error handler middleware
 app.use(errorHandler);

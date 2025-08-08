@@ -34,7 +34,7 @@ export const createStudentSchema = z.object({
   rollNumber: z.number(),
 
   fatherName: z.string({ message: "Father's name is required." }),
-  motherName: z.string({ message: "Mother's name is required." }), 
+  motherName: z.string({ message: "Mother's name is required." }),
   address: z.object({
     village: z.string({ message: "Village is required." }),
     post: z.string({ message: "Post is required." }),
@@ -58,6 +58,8 @@ export const studentQuerySchema = z.object({
     .refine((val) => !isNaN(val), { message: "Class number must be a number." })
     .optional(),
   section: z.string().optional(),
+  gender: z.enum(GENDER_ENUM, { message: "Invalid gender." }).optional(),
+  parentId: z.string().optional(),
   page: z
     .string()
     .transform((val) => Number(val))
@@ -70,5 +72,5 @@ export const studentQuerySchema = z.object({
     .optional(),
 });
 
-
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
+export type UpdateStudentInput = z.infer<typeof createStudentSchema>;

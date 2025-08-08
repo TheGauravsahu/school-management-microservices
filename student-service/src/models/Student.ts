@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import logger from "../config/logger";
 import { generateProfilePicture } from "../utils/profilePicGeneration";
+import { IStudent } from "../types";
 import {
   RELIGION_ENUM,
   BLOOD_GROUP_ENUM,
@@ -9,40 +10,6 @@ import {
   GENDER_ENUM,
 } from "./consonants";
 
-export interface IStudent extends mongoose.Document {
-  userId: string; // from auth-service
-  parentId: string; // from parent-service
-
-  email: string;
-  mobileNumber: string;
-  aadhaarNumber: string;
-  profilePicture?: string;
-
-  bloodGroup: (typeof BLOOD_GROUP_ENUM)[number];
-  religion: (typeof RELIGION_ENUM)[number];
-  category: (typeof CATEGORY_ENUM)[number];
-  nationality: (typeof NATIONALITY_ENUM)[number];
-
-  dateOfBirth: Date;
-  firstName: string;
-  lastName: string;
-  gender: (typeof GENDER_ENUM)[number];
-  age: number;
-  class: number;
-  section: string;
-  rollNumber: number;
-
-  fatherName: string;
-  motherName: string;
-  address: {
-    village: string;
-    post: string;
-    block: string;
-    district: string;
-    state: string;
-    zipCode: string;
-  };
-}
 
 const studentSchema = new mongoose.Schema<IStudent>(
   {

@@ -1,5 +1,6 @@
 import { Logger } from "winston";
-import { IStudent, studentModel } from "../models/Student";
+import {  studentModel } from "../models/Student";
+import { IStudent, StudentQueryFilters } from "../types";
 
 export class StudentRepostory {
   constructor(private logger: Logger) {}
@@ -13,30 +14,21 @@ export class StudentRepostory {
     }
   }
 
-  async findAll(skip: number, limit: number) {
-    try {
-      return await studentModel.find().skip(skip).limit(limit);
-    } catch (error) {
-      this.logger.error("Error fetching students", error);
-      throw new Error("Failed to fetch students");
-    }
-  }
+  async findAll(filters: StudentQueryFilters) {
+    const query: any = {};
 
-  async findByClassAndSection(
-    classNumber: number,
-    section: string,
-    skip: number,
-    limit: number
-  ) {
-    try {
-      return await studentModel
-        .find({ class: classNumber, section })
-        .skip(skip)
-        .limit(limit);
-    } catch (error) {
-      this.logger.error("Error fetching students by class and section", error);
-      throw new Error("Failed to fetch students by class and section");
+    if (filters.classNumber) query.class = filters.classNumber;
+    if (filters.section) query.section = filters.section;
+    if (filters.gender) query.gender = filters.gender;
+    if (filters.parentId) query.parentId = filters.parentId;
+
+    const mongooseQuery = studentModel.find(query);
+
+    if (!filters.exportMode) {
+      mongooseQuery.skip(filters.skip ?? 0).limit(filters.limit ?? 10);
     }
+
+    return await mongooseQuery.sort({ createdAt: -1 });
   }
 
   async findById(id: string) {
@@ -75,18 +67,33 @@ export class StudentRepostory {
     }
   }
 
-  async countAll() {
-    return studentModel.countDocuments();
+  async findByParentId(parentId: string) {
+    try {
+      const student = await studentModel.find({ parentId });
+      return student;
+    } catch (error) {
+      this.logger.error("Error fetching student by parent ID", error);
+      throw new Error("Failed to fetch student by parent ID");
+    }
   }
 
-  async countByClassAndSection(classNumber: number, section: string) {
-    return studentModel.countDocuments({
-      class: classNumber,
-      section,
+  async countAll(filters: StudentQueryFilters): Promise<number> {
+    const query: any = {};
+
+    if (filters.classNumber) query.class = filters.classNumber;
+    if (filters.section) query.section = filters.section;
+    if (filters.gender) query.gender = filters.gender;
+    if (filters.parentId) query.parentId = filters.parentId;
+
+    return await studentModel.countDocuments(query);
+  }
+
+  async update(id: string, data: Partial<IStudent>) {
+    return studentModel.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
     });
   }
-
-  async update() {}
 
   async delete(id: string) {
     try {

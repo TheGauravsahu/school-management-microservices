@@ -7,7 +7,6 @@ import { StudentRepostory } from "../repository/studentRepository";
 import { StudentController } from "../controllers/studentController";
 import { authorizeRoles } from "./../../../shared/middlewares/authorizeRoles";
 import { asyncHandler } from "../../../shared/middlewares/asyncHandler";
-import { authenticateToken } from "../../../shared/middlewares/auth";
 import { UserRole } from "../../../shared/types";
 
 const router: express.Router = express.Router();
@@ -18,7 +17,6 @@ const studentController = new StudentController(studentService, logger);
 
 router.post(
   "/",
-  authenticateToken,
   authorizeRoles([UserRole.ADMIN, UserRole.TEACHER]),
   validateRequest(createStudentSchema),
   asyncHandler(studentController.createStudent.bind(studentController))
@@ -26,9 +24,39 @@ router.post(
 
 router.get(
   "/",
-  authenticateToken,
   authorizeRoles([UserRole.ADMIN, UserRole.TEACHER]),
   asyncHandler(studentController.getAllStudents.bind(studentController))
+);
+
+router.get(
+  "/:id",
+  authorizeRoles([UserRole.ADMIN, UserRole.TEACHER]),
+  asyncHandler(studentController.getStudentById.bind(studentController))
+);
+
+router.get(
+  "/me",
+  authorizeRoles([UserRole.STUDENT]),
+  asyncHandler(studentController.getStudentByUserId.bind(studentController))
+); // for logged-in student
+
+router.get(
+  "/parent/:parentId",
+  authorizeRoles([UserRole.PARENT, UserRole.ADMIN, UserRole.TEACHER]),
+  asyncHandler(studentController.getStudentsByParentId.bind(studentController))
+);
+
+router.put(
+  "/:id",
+  authorizeRoles([UserRole.ADMIN, UserRole.TEACHER]),
+  validateRequest(createStudentSchema),
+  asyncHandler(studentController.updateStudent.bind(studentController))
+);
+
+router.delete(
+  "/:id",
+  authorizeRoles([UserRole.ADMIN]),
+  asyncHandler(studentController.deleteStudent.bind(studentController))
 );
 
 export default router;
