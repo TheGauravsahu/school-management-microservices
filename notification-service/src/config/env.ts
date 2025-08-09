@@ -1,22 +1,26 @@
-import { config } from "dotenv";
-import path from "path";
-
-config({
-  path: path.join(__dirname, "../.env"),
-});
+import dotenv from "dotenv";
+dotenv.config();
 
 const {
-  ACCESS_TOKEN_SECRET,
   RABBIT_MQ_URL,
   RABBIT_MQ_EXCHANGE,
   EMAIL_QUEUE,
   PREFETCH,
+  SMTP_HOST,
+  SMTP_PORT,
+  SMTP_USER,
+  SMTP_PASS,
+  EMAIL_FROM,
 } = process.env;
 
 export const env = {
-  ACCESS_TOKEN_SECRET,
   RABBIT_MQ_URL,
   RABBIT_MQ_EXCHANGE,
   EMAIL_QUEUE,
   PREFETCH,
+  SMTP_HOST,
+  SMTP_PORT,
+  SMTP_USER,
+  SMTP_PASS,
+  EMAIL_FROM,
 };
