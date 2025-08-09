@@ -13,7 +13,8 @@ export class PDFService {
     // generate PDF
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    page.setDefaultNavigationTimeout(10); // 10 sec timeout
+    await page.setContent(html, { waitUntil: "domcontentloaded" });
 
     const pdfBuffer = await page.pdf({
       format: "A4",

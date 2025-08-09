@@ -36,7 +36,7 @@ router.get(
 
 router.get(
   "/export",
-  // authorizeRoles([UserRole.ADMIN, UserRole.TEACHER]),
+  authorizeRoles([UserRole.ADMIN, UserRole.TEACHER]),
   asyncHandler(studentController.exportStudents.bind(studentController))
 );
 

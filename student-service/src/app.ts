@@ -20,8 +20,8 @@ app.get("/", (_, res) => {
   res.send("Welcome to Student service.");
 });
 
-// app.use("/api/v1/students", authenticateToken, studentRouter);
-app.use("/api/v1/students", studentRouter); // dev-only, remove auth for now
+app.use("/api/v1/students", authenticateToken, studentRouter);
+// app.use("/api/v1/students", studentRouter); // dev-only, remove auth for now
 
 // error handler middleware
 app.use(errorHandler);
