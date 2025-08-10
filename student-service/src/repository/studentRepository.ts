@@ -1,5 +1,5 @@
 import { Logger } from "winston";
-import {  studentModel } from "../models/Student";
+import { studentModel } from "../models/Student";
 import { IStudent, StudentQueryFilters } from "../types";
 
 export class StudentRepostory {
@@ -28,7 +28,7 @@ export class StudentRepostory {
       mongooseQuery.skip(filters.skip ?? 0).limit(filters.limit ?? 10);
     }
 
-    return await mongooseQuery.sort({ createdAt: -1 });
+    return await mongooseQuery.sort({ rollNo: 1 });
   }
 
   async findById(id: string) {
@@ -89,7 +89,7 @@ export class StudentRepostory {
   }
 
   async update(id: string, data: Partial<IStudent>) {
-    return studentModel.findByIdAndUpdate(id, data, {
+    return await studentModel.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
     });

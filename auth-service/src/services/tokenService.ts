@@ -19,7 +19,6 @@ export class TokenService {
   generateRefreshToken(payload: JWTPayload) {
     const refreshToken = sign(payload, env.REFRESH_TOKEN_SECRET!, {
       issuer: "auth-service",
-      jwtid: payload.jti,
     });
     return refreshToken;
   }

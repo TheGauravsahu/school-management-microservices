@@ -194,12 +194,24 @@ export class AuthController {
   }
 
   async refreshAccessToken(req: Request, res: Response, next: NextFunction) {
-    const refreshToken = req.cookies.refreshToken;
+    let refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      // 1. Custom header
+      refreshToken = req.header("x-refresh-token");
+
+      // 2. Or from Authorization header: "Bearer <token>"
+      if (!refreshToken) {
+        const authHeader = req.header("authorization");
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+          refreshToken = authHeader.substring(7); // remove "Bearer "
+        }
+      }
+    }
+
     if (!refreshToken) {
       this.logger.warn("Refresh token not provided");
-      const error = createHttpError(401, "Refresh token required");
-      next(error);
-      return;
+      return next(createHttpError(401, "Refresh token required"));
     }
 
     try {
