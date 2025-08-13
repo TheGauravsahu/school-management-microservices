@@ -1,8 +1,8 @@
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { Request, Response } from "express";
-import { env } from "../config/env";
-import logger from "../config/logger";
+import { env } from "../common/config/env";
+import logger from "../common/config/logger";
 
 const router: express.Router = express.Router();
 

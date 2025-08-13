@@ -1,8 +1,8 @@
-import {  ConsumeMessage } from "amqplib";
+import { ConsumeMessage } from "amqplib";
 import nodemailer from "nodemailer";
-import { env } from "../config/env";
-import { RabbitMQ } from "../queues/rabbitmq";
-import logger from "../config/logger";
+import { env } from "../common/config/env";
+import { RabbitMQ } from "../common/config/rabbitmq";
+import logger from "../common/config/logger";
 
 const rabbitMq = new RabbitMQ();
 

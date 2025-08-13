@@ -2,8 +2,8 @@ import helmet from "helmet";
 import express, { NextFunction, Request, Response } from "express";
 import { env } from "./config/env";
 import proxyRoutes from "./routes/proxy";
-import logger from "./config/logger";
-import { requestLogger } from "../../shared/middlewares/requestLogger";
+import logger from "./common/config/logger";
+import { requestLogger } from "./common/middlewares/requestLogger";
 import { limiter } from "./middleware/rate-limiter.middleware";
 
 const app: express.Application = express();

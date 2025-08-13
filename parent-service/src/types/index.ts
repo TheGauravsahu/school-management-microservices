@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import "fastify";
-import { JWTPayload } from "../../../shared/types";
+import { JWTPayload } from "../common/types";
 
 declare module "fastify" {
   interface FastifyRequest {

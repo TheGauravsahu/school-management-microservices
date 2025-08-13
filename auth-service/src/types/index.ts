@@ -1,13 +1,5 @@
 import { Request } from "express";
-import { UserRole, JWTPayload } from "../../../shared/types";
-
-declare global {
-  namespace Express {
-    export interface Request {
-      user?: JWTPayload;
-    }
-  }
-}
+import { UserRole } from "../common/types";
 
 export interface UserData {
   email: string;

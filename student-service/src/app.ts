@@ -1,9 +1,9 @@
 import express, { Application } from "express";
 import helmet from "helmet";
 import studentRouter from "./routes/student";
-import { requestLogger } from "../../shared/middlewares/requestLogger";
-import { errorHandler } from "../../shared/middlewares/errorHandler";
-import { authenticateToken } from "../../shared/middlewares/auth";
+import { requestLogger } from "./common/middlewares/requestLogger";
+import { errorHandler } from "./common/middlewares/errorHandler";
+import { authenticateToken } from "./common/middlewares/auth";
 import dotenv from "dotenv";
 
 dotenv.config();

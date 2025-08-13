@@ -3,10 +3,10 @@ import { ParentController } from "../controllers/parentConroller";
 import { ParentService } from "../services/parentService";
 import { ParentRepository } from "../repository/parentRepository";
 import createParentSchema from "../validators/create-parent.schema";
-import logger from "../config/logger";
+import logger from "../common/config/logger";
 import { authenticateToken } from "../middlewares/auth";
 import { authorizeRoles } from "../middlewares/authorizeRoles";
-import { UserRole } from "../../../shared/types";
+import { UserRole } from "../common/types";
 import { IParent, ParentQueryFilters } from "../types";
 import { getParentsQuerySchema } from "../validators/get-parents.schema";
 
@@ -46,6 +46,7 @@ async function parentRouter(fastify: FastifyInstance) {
   fastify.put<{ Params: { id: string }; Body: Partial<IParent> }>(
     "/:id",
     {
+      schema: createParentSchema,
       preHandler: [authorizeRoles([UserRole.ADMIN])],
     },
     parentController.updateParent.bind(parentController)

@@ -1,0 +1,83 @@
+import { FastifySchema } from "fastify";
+import { GENDER_ENUM, SUBJECTS_ENUM } from "../types";
+
+const createTeacherSchema: FastifySchema = {
+  body: {
+    type: "object",
+    required: [
+      "userId",
+      "firstName",
+      "lastName",
+      "fatherName",
+      "motherName",
+      "aadharNumber",
+      "mobileNumber",
+      "email",
+      "dateOfBirth",
+      "experience",
+      "gender",
+      "subject",
+      "address",
+    ],
+    properties: {
+      userId: { type: "string" },
+      firstName: { type: "string" },
+      lastName: { type: "string" },
+      fatherName: { type: "string" },
+      motherName: { type: "string" },
+      aadharNumber: { type: "string" },
+      mobileNumber: { type: "string" },
+      email: { type: "string", format: "email" },
+      dateOfBirth: { type: "string", format: "date" },
+      experience: { type: "string" },
+      gender: { type: "string", enum: Object.values(GENDER_ENUM) },
+      subject: { type: "string", enum: Object.values(SUBJECTS_ENUM) },
+      address: {
+        type: "object",
+        required: ["village", "post", "block", "district", "state", "zipCode"],
+        properties: {
+          village: { type: "string" },
+          post: { type: "string" },
+          block: { type: "string" },
+          district: { type: "string" },
+          state: { type: "string" },
+          zipCode: { type: "string" },
+        },
+      },
+    },
+    errorMessage: {
+      required: {
+        userId: "User ID is required",
+        firstName: "First name is required",
+        lastName: "Last name is required",
+        fatherName: "Father's name is required",
+        motherName: "Mother's name is required",
+        aadharNumber: "Aadhar number is required",
+        mobileNumber: "Mobile number is required",
+        email: "Email is required",
+        dateOfBirth: "Date of birth is required",
+        experience: "Experience is required",
+        gender: "Gender is required",
+        subject: "Subject is required",
+        address: "Address is required",
+      },
+      properties: {
+        userId: "User ID must be a string",
+        firstName: "First name must be a string",
+        lastName: "Last name must be a string",
+        fatherName: "Father's name must be a string",
+        motherName: "Mother's name must be a string",
+        aadharNumber: "Aadhar number must be a string",
+        mobileNumber: "Mobile number must be a string",
+        email: "Email must be a valid email address",
+        dateOfBirth: "Date of birth must be a valid date",
+        experience: "Experience must be a string",
+        gender: "Gender must be one of the allowed values",
+        subject: "Subject must be one of the allowed values",
+        address: "Address must be a valid object",
+      },
+    },
+  },
+};
+
+export default createTeacherSchema;

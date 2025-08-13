@@ -1,7 +1,7 @@
 import app from "./app";
-import { connectToDb } from "./config/db";
-import { env } from "./config/env";
-import logger from "./config/logger";
+import { connectToDb } from "./common/config/db";
+import { env } from "./common/config/env";
+import logger from "./common/config/logger";
 
 const PORT = env.PORT;
 

@@ -6,8 +6,8 @@ import createHttpError from "http-errors";
 import { CredentialService } from "../services/credentialService";
 import { UserService } from "../services/userService";
 import { TokenService } from "../services/tokenService";
-import { env } from "../config/env";
-import { JWTPayload } from "../../../shared/types";
+import { env } from "../common/config/env";
+import { JWTPayload } from "../common/types";
 
 const SERVICE_NAME = "AUTH_SERVICE";
 

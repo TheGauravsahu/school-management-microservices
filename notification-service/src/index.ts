@@ -1,5 +1,5 @@
-import { env } from "./config/env";
-import logger from "./config/logger";
+import { env } from "./common/config/env";
+import logger from "./common/config/logger";
 import { startEmailConsumer } from "./workers/emailWoker";
 
 async function start() {

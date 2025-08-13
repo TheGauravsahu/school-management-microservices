@@ -5,8 +5,8 @@ import dotenv from "dotenv";
 import express, { Application } from "express";
 import authRouter from "./routes/auth";
 import cookieParser from "cookie-parser";
-import { errorHandler } from "../../shared/middlewares/errorHandler";
-import { requestLogger } from "../../shared/middlewares/requestLogger";
+import { errorHandler } from "./common/middlewares/errorHandler";
+import { requestLogger } from "./common/middlewares/requestLogger";
 
 //load environment variables
 dotenv.config();

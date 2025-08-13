@@ -2,12 +2,12 @@ import express from "express";
 import { validateRequest } from "../validators/validateReq";
 import { createStudentSchema } from "../validators/student.validator";
 import { StudentService } from "../services/studentService";
-import logger from "../config/logger";
+import logger from "../common/config/logger";
 import { StudentRepostory } from "../repository/studentRepository";
 import { StudentController } from "../controllers/studentController";
-import { authorizeRoles } from "./../../../shared/middlewares/authorizeRoles";
-import { asyncHandler } from "../../../shared/middlewares/asyncHandler";
-import { UserRole } from "../../../shared/types";
+import { authorizeRoles } from "../common/middlewares/authorizeRoles";
+import { asyncHandler } from "../common/middlewares/asyncHandler";
+import { UserRole } from "../common/types";
 import { PDFService } from "../services/pdfService";
 
 const router: express.Router = express.Router();

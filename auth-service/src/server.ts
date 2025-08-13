@@ -1,7 +1,7 @@
 import app from "./app";
-import { AppDataSource } from "./config/data-source";
-import { env } from "./config/env";
-import logger from "./config/logger";
+import { AppDataSource } from "./common/config/data-source";
+import { env } from "./common/config/env";
+import logger from "./common/config/logger";
 
 
 const startServer = async () => {

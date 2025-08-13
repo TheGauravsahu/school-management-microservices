@@ -33,10 +33,6 @@ export class ParentRepository {
   async findById(id: string) {
     try {
       const result = await parentModel.findById(id);
-      if (!result) {
-        this.logger.warn("Parent not found by ID", { id });
-        throw createHttpError(404, "Parent not found by ID");
-      }
       return result;
     } catch (error) {
       this.logger.error("Error finding parent by ID", { error, id });

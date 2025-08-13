@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import logger from "../config/logger";
+import logger from "../common/config/logger";
 import { generateProfilePicture } from "../utils/profilePicGeneration";
 import { IStudent } from "../types";
 import {
@@ -9,7 +9,6 @@ import {
   NATIONALITY_ENUM,
   GENDER_ENUM,
 } from "./consonants";
-
 
 const studentSchema = new mongoose.Schema<IStudent>(
   {

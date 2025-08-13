@@ -1,10 +1,10 @@
 import { sign, verify } from "jsonwebtoken";
-import { env } from "../config/env";
+import { env } from "../common//config/env";
 import { User } from "../entity/User";
 import { Repository } from "typeorm";
 import { RefreshToken } from "../entity/RefreshToken";
-import { JWTPayload } from "../../../shared/types";
-import logger from "../config/logger";
+import { JWTPayload } from "../common/types";
+import logger from "../common/config/logger";
 
 export class TokenService {
   constructor(private refreshTokenRepository: Repository<RefreshToken>) {}
