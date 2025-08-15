@@ -23,9 +23,13 @@ services:
       RABBITMQ_DEFAULT_PASS: admin
     volumes:
       - rabbitmq-data:/var/lib/rabbitm
+    networks:
+      - school_network
+
 volumes:
   postgres_data:
   rabbitmq-data:
+
 networks:
   school_network:
     driver: bridge

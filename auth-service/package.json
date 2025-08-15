@@ -5,15 +5,17 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate",
-    "migration:run": "typeorm-ts-node-commonjs migration:run",
-    "migration:create": "typeorm-ts-node-commonjs migration:create"
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/common/config/data-source.ts",
+    "migration:create": "typeorm-ts-node-commonjs migration:create src/migrations",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/common/config/data-source.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/common/config/data-source.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.8.0",
   "devDependencies": {
+    "@types/amqplib": "^0.10.7",
     "@types/bcryptjs": "^3.0.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/express": "^5.0.3",
@@ -25,6 +27,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "amqplib": "^0.10.8",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.0",

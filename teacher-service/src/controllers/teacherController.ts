@@ -2,18 +2,41 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { TeacherService } from "../services/teacherService";
 import { Logger } from "winston";
 import { ITeacher } from "../types";
+import { UserRole } from "../common/types";
+import { RabbitMQ } from "../common/config/rabbitmq";
+import { Events } from "../common/config/rabbitmq/events";
 
 const SERVICE_NAME = "TEACHER_SERVICE";
 
 export class TeacherController {
-  constructor(private logger: Logger, private teacherService: TeacherService) {}
+  constructor(
+    private logger: Logger,
+    private teacherService: TeacherService,
+    private rabbitMQ: RabbitMQ
+  ) {}
 
   async createTeacher(
     req: FastifyRequest<{ Body: ITeacher }>,
     reply: FastifyReply
   ) {
     try {
-      const teacher = await this.teacherService.createTeacher(req.body as any);
+      const teacher = await this.teacherService.createTeacher(
+        req.body as ITeacher
+      );
+
+      // publish event to rabbitMQ
+      await this.rabbitMQ.publish<Events.TEACHER_CREATED>(
+        Events.TEACHER_CREATED,
+        {
+          teacherId: teacher._id as string,
+          email: teacher.email,
+          firstName: teacher.firstName,
+          lastName: teacher.lastName,
+        }
+      );
+
+      this.logger.info("Published event", Events.TEACHER_CREATED);
+      
       reply.status(201).send({
         success: true,
         message: "Teacher created successfully.",

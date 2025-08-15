@@ -1,6 +1,11 @@
 import { checkSchema } from "express-validator";
 
 export default checkSchema({
+  name: {
+    trim: true,
+    errorMessage: "Name is required!",
+    notEmpty: true,
+  },
   email: {
     trim: true,
     errorMessage: "Email is required!",
@@ -24,5 +29,10 @@ export default checkSchema({
     errorMessage: "Role is required!",
     notEmpty: true,
     trim: true,
+  },
+  externalId: {
+    trim: true,
+    errorMessage: "External Id is required!",
+    notEmpty: true,
   },
 });

@@ -2,31 +2,32 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from "typeorm";
 import { User } from "./User";
 
-@Entity({ name: "refreshTokens" })
-export class RefreshToken {
+@Entity({ name: "verificationTokens" })
+export class VerificationToken {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({ type: "timestamp" })
-  expiresAt!: Date;
-
-  @ManyToOne(() => User, (user) => user.refreshTokens, {
+  @ManyToOne(() => User, (user) => user.verificationTokens, {
     onDelete: "CASCADE",
   })
   user!: User;
 
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @Index()
+  @Column()
+  token!: string;
+
+  @Column({ type: "timestamp" })
+  expiresAt!: Date;
 
   @CreateDateColumn()
   createdAt!: Date;
 
   @Column({ default: false })
-  revoked!: boolean;
+  used!: boolean;
 }

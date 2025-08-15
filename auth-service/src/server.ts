@@ -2,13 +2,14 @@ import app from "./app";
 import { AppDataSource } from "./common/config/data-source";
 import { env } from "./common/config/env";
 import logger from "./common/config/logger";
-
+import { startAuthConsumer } from "./consumers/authConsumer";
 
 const startServer = async () => {
   const PORT = env.PORT;
   try {
     await AppDataSource.initialize();
     logger.info("Database connection established successfully");
+    await startAuthConsumer();
     app.listen(PORT, () =>
       logger.info(`Auth Service is running on port ${PORT}`)
     );

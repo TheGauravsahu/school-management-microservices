@@ -8,10 +8,16 @@ import createTeacherSchema from "../validators/create-teacher.schema";
 import { authorizeRoles } from "../middlewares/authorizeRoles";
 import { UserRole } from "../common/types";
 import { ITeacher } from "../types";
+import { RabbitMQ } from "../common/config/rabbitmq";
 
 const teacherRepository = new TeacherRepository(logger);
 const teacherService = new TeacherService(logger, teacherRepository);
-const teacherController = new TeacherController(logger, teacherService);
+const rabbitMQ = new RabbitMQ();
+const teacherController = new TeacherController(
+  logger,
+  teacherService,
+  rabbitMQ
+);
 
 async function teacherRouter(fastify: FastifyInstance) {
   fastify.addHook("preHandler", authenticateToken);

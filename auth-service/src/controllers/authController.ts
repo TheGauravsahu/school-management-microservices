@@ -1,13 +1,14 @@
 import { Logger } from "winston";
 import { Request, NextFunction, Response } from "express";
 import { RegisterUserRequest } from "../types";
-import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { CredentialService } from "../services/credentialService";
 import { UserService } from "../services/userService";
 import { TokenService } from "../services/tokenService";
 import { env } from "../common/config/env";
 import { JWTPayload } from "../common/types";
+import { RabbitMQ } from "../common/config/rabbitmq";
+import {  Events } from "../common/config/rabbitmq/events";
 
 const SERVICE_NAME = "AUTH_SERVICE";
 
@@ -16,30 +17,39 @@ export class AuthController {
     private userService: UserService,
     private logger: Logger,
     private credentialService: CredentialService,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private rabitMq: RabbitMQ
   ) {}
 
   async register(req: RegisterUserRequest, res: Response, next: NextFunction) {
-    // validate request body
-    const result = validationResult(req);
-    if (!result.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation Error",
-        errors: result.array(),
-      });
-    }
-
-    const { email, password, role } = req.body;
+    const { name, email, password, role, externalId } = req.body;
     this.logger.debug("Registering user", { email, role, password: "******" });
 
     try {
       const user = await this.userService.create({
+        name,
         email,
         password,
         role,
+        externalId,
       });
       this.logger.info("User has been registered", { id: user.id });
+
+      // pulish event
+      const { token, expiresAt } =
+        await this.tokenService.generateVerificationToken(user);
+      this.logger.info(
+        `Verification token for ${user.email} - ${user.role} has been generated ${token}. Expires At: ${expiresAt}`
+      );
+      this.rabitMq.publish<Events.EMAIL_VERIFICATION>(
+        Events.EMAIL_VERIFICATION,
+        {
+          name,
+          email,
+          role,
+          verificationToken: token,
+        }
+      );
 
       const accessTokenJwtPayload: JWTPayload = {
         userId: user.id,
@@ -93,11 +103,6 @@ export class AuthController {
   }
 
   async login(req: RegisterUserRequest, res: Response, next: NextFunction) {
-    // validate request body
-    const result = validationResult(req);
-    if (!result.isEmpty()) {
-      return res.status(400).json({ errors: result.array() });
-    }
     const { email, password } = req.body;
 
     this.logger.debug("New request to login a user", {
@@ -115,7 +120,7 @@ export class AuthController {
       }
 
       const passwordMatch = await this.credentialService.comparePassword(
-        password,
+        password!,
         user.password
       );
       if (!passwordMatch) {
@@ -215,8 +220,10 @@ export class AuthController {
     }
 
     try {
-      const payload = this.tokenService.verifyRefreshToken(refreshToken);
-      const user = await this.userService.findById(payload?.userId as string);
+      const payload = await this.tokenService.verifyRefreshToken(refreshToken);
+      const user = await this.userService.findById(
+        payload?.userId as string
+      );
       if (!user) {
         this.logger.warn("User not found for refresh token", {
           userId: payload?.userId,
@@ -258,31 +265,20 @@ export class AuthController {
       req.cookies.refreshToken || req.headers["x-refresh-token"];
     if (!refreshToken) {
       this.logger.warn("Refresh token not provided for logout");
-      next(createHttpError(401, "Refresh token required"));
-      return;
+      return next(createHttpError(401, "Refresh token required"));
     }
+
     this.logger.debug("Logging out user", { refreshToken });
     try {
-      const payload = this.tokenService.verifyRefreshToken(refreshToken);
-      if (!payload) {
-        next(createHttpError(401, "Invalid refresh token"));
-        return;
-      }
+      const payload = await this.tokenService.verifyRefreshToken(refreshToken);
+      if (!payload) return next(createHttpError(401, "Invalid refresh token"));
 
-      const user = await this.userService.findById(payload.userId);
-      if (!user) {
-        this.logger.warn("User not found for logout", {
-          userId: payload.userId,
-        });
-        next(createHttpError(404, "User not found"));
-        return;
-      }
+      await this.tokenService.deleteRefreshToken(payload.jti!);
 
-      // Delete the refresh token from the DB
-      await this.tokenService.deleteRefreshToken(payload.tokenId);
+      res.clearCookie("refreshToken", { domain: env.MAIN_DOMAIN });
+      res.clearCookie("accessToken", { domain: env.MAIN_DOMAIN });
 
-      // Optionally clear cookies
-      res.clearCookie("refreshToken");
+      this.logger.info("User logged out", { userId: payload.userId });
 
       return res.status(200).json({
         success: true,
@@ -293,6 +289,66 @@ export class AuthController {
       this.logger.error("Error during logout", { error });
       next(error);
       return;
+    }
+  }
+
+  async sendVerification(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      const user = await this.userService.findByIdNotActivated(userId!);
+      if (!user) return next(createHttpError(404, "User not found"));
+
+      if (user.isActivated) {
+        return res.json({ success: true, message: "Already verified" });
+      }
+      // pulish event
+      const verificationToken =
+        await this.tokenService.generateVerificationToken(user);
+
+      this.rabitMq.publish<Events.EMAIL_VERIFICATION>(
+        Events.EMAIL_VERIFICATION,
+        {
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          verificationToken: verificationToken.token,
+        }
+      );
+
+      this.logger.info("Verification email sent", { email: user.email });
+
+      return res.json({
+        success: true,
+        message: "Verification email sent",
+        data_from: SERVICE_NAME,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async verifyAccount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token } = req.query;
+      const user = await this.tokenService.verifyVerificationToken(
+        token as string
+      );
+
+      if (!user) return next(createHttpError(400, "Invalid or expired token"));
+
+      user.isActivated = true;
+      await this.userService.save(user);
+      await this.tokenService.invalidateVerificationToken(token as string);
+
+      this.logger.info("User account activated", { userId: user.id });
+
+      return res.json({
+        success: true,
+        message: "Account verified successfully",
+        data_from: SERVICE_NAME,
+      });
+    } catch (error) {
+      return next(error);
     }
   }
 }

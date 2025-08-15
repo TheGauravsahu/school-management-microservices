@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import ajvErrors from "ajv-errors";
+import teacherRouter from "./routes/teacher";
 
 const app = Fastify({
   logger: true,
@@ -10,6 +11,8 @@ const app = Fastify({
     plugins: [ajvErrors],
   },
 });
+
+app.register(teacherRouter, { prefix: "/api/v1/teachers" });
 
 app.setErrorHandler((error, req, reply) => {
   if (error.validation) {

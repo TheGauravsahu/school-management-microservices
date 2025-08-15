@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import mongoose from "mongoose";
 import { JWTPayload } from "../common/types";
 
 declare module "fastify" {
@@ -7,7 +7,7 @@ declare module "fastify" {
   }
 }
 
-export interface ITeacher extends Document {
+export interface ITeacher extends mongoose.Document {
   userId: string; // from auth-service\
 
   firstName: string;

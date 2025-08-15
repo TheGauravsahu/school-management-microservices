@@ -8,11 +8,10 @@ const {
   RABBIT_MQ_EXCHANGE,
   EMAIL_QUEUE,
   PREFETCH,
-  SMTP_HOST,
-  SMTP_PORT,
   SMTP_USER,
   SMTP_PASS,
   EMAIL_FROM,
+  AUTH_SERVICE_URL,
 } = process.env;
 
 export const env = {
@@ -21,9 +20,8 @@ export const env = {
   RABBIT_MQ_EXCHANGE,
   EMAIL_QUEUE,
   PREFETCH,
-  SMTP_HOST,
-  SMTP_PORT,
   SMTP_USER,
   SMTP_PASS,
   EMAIL_FROM,
+  AUTH_SERVICE_URL,
 };

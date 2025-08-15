@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { UserRole } from "../../../shared/types";
+import { UserRole } from "../common/types";
 
 export function authorizeRoles(allowedRoles: UserRole[]) {
   return async (req: FastifyRequest, reply: FastifyReply) => {

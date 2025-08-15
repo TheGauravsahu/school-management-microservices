@@ -1,6 +1,7 @@
 import amqp, { Channel, ChannelModel, ConfirmChannel } from "amqplib";
 import { env } from "../env";
 import logger from "../logger";
+import { EventPayloads, Events } from "./events";
 
 export class RabbitMQ {
   private connection: ChannelModel | null = null;
@@ -51,9 +52,9 @@ export class RabbitMQ {
     return this.confirmChannel;
   }
 
-  async publish(
+  async publish<E extends Events>(
     routingKey: string,
-    message: any,
+    message: EventPayloads[E],
     options: { persistent?: boolean; dedupeId?: string } = {}
   ) {
     const channel = await this.getConfirmChannel();
