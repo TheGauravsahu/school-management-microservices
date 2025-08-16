@@ -56,6 +56,14 @@ export async function startAuthConsumer() {
           const { email, teacherId, firstName, lastName } =
             data as EventPayloads[Events.TEACHER_CREATED];
 
+          const existingUser = await userService.findByEmail(email);
+          if (existingUser) {
+            logger.info(
+              `User with email ${email} already exists, skipping insert.`
+            );
+            break;
+          }
+
           // create user
           const user = await userService.save({
             name: `${firstName} ${lastName}`,

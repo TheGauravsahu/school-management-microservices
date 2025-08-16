@@ -1,0 +1,31 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const {
+  PORT,
+  DB_HOST,
+  DB_PORT,
+  DB_USERNAME,
+  DB_PASSWORD,
+  DB_NAME,
+  ACCESS_TOKEN_SECRET,
+  RABBIT_MQ_URL,
+  RABBIT_MQ_EXCHANGE,
+  ATTENDENCE_QUEUE,
+  PREFETCH,
+} = process.env;
+
+export const env = {
+  PORT,
+  DB_HOST,
+  DB_PORT,
+  DB_USERNAME,
+  DB_PASSWORD,
+  DB_NAME,
+  ACCESS_TOKEN_SECRET,
+  RABBIT_MQ_URL,
+  RABBIT_MQ_EXCHANGE,
+  ATTENDENCE_QUEUE,
+  PREFETCH,
+};

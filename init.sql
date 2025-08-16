@@ -1,0 +1,2 @@
+CREATE DATABASE auth_service_db;
+CREATE DATABASE attendance_service_db;

@@ -1,13 +1,13 @@
 import { Repository } from "typeorm";
-import { User } from "../entity/User";
 import { UserData } from "../types";
 import createHttpError from "http-errors";
 import bcrypt from "bcryptjs";
+import { User } from "../entity/User";
 
 export class UserService {
   constructor(private userRepository: Repository<User>) {}
 
-  async create({ email, password, role, externalId }: UserData) {
+  async create({ name, email, password, role, externalId }: UserData) {
     const user = await this.userRepository.findOne({ where: { email } });
     if (user) {
       const err = createHttpError(400, "Email is already exists!");
@@ -19,12 +19,14 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(password!, saltRounds);
 
     try {
-      return this.userRepository.save({
+      const user = this.userRepository.create({
+        name,
         email,
         password: hashedPassword,
         role,
         externalId,
       });
+      return await this.userRepository.save(user);
     } catch (err) {
       const error = createHttpError(
         500,
@@ -41,7 +43,15 @@ export class UserService {
   async findByEmailWithPassword(email: string) {
     const user = await this.userRepository.findOne({
       where: { email },
-      select: ["id", "email", "password", "role", "isActivated","createdAt", "updatedAt"],
+      select: [
+        "id",
+        "email",
+        "password",
+        "role",
+        "isActivated",
+        "createdAt",
+        "updatedAt",
+      ],
     });
 
     if (!user?.isActivated) {
@@ -52,6 +62,10 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async findByEmail(email: string) {
+    return await this.userRepository.findOne({ where: { email } });
   }
 
   async findById(id: string) {
