@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 
 @Entity("student_attendance")
-@Index(["student", "classNumber", "date"], { unique: true })
+@Index(["classNumber", "date"], { unique: true })
 export class StudentAttendance {
   @PrimaryGeneratedColumn("uuid")
   id: string;

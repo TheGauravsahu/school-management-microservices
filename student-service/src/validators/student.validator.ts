@@ -8,8 +8,9 @@ import {
 } from "../models/consonants";
 
 export const createStudentSchema = z.object({
-  userId: z.string({ message: "User ID is required." }).min(1),
-  parentId: z.string({ message: "Parent ID is required." }).min(1),
+  parentIds: z
+    .array(z.string({ message: "Parent ID must be a string." }))
+    .min(0, { message: "At least one parent ID is required." }),
 
   email: z.string({ message: "Email is required." }).email(),
   mobileNumber: z

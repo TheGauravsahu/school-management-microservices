@@ -48,6 +48,10 @@ export async function startEmailConsumer(handleConcurrency = 3) {
     try {
       switch (routingKey) {
         case Events.STUDENT_CREATED: {
+          const { email, firstName, lastName } =
+            data as EventPayloads[Events.STUDENT_CREATED];
+          const html = `<p>Hello ${firstName} ${lastName},</p><p>You have been registered as a student.</p>`;
+          await sendEmail(email, "Student Account Created", html);
           break;
         }
 

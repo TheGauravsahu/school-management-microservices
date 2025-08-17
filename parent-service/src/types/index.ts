@@ -9,8 +9,6 @@ declare module "fastify" {
 }
 
 export interface IParent extends mongoose.Document {
-  userId: string; // auth-service
-  studentIds: string[]; // student-service
   firstName: string;
   lastName: string;
   email: string;

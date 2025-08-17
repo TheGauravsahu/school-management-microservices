@@ -11,12 +11,12 @@ export class StudentService {
   ) {}
 
   async createStudent(data: IStudent) {
-    const isExistingStudent = await this.studentRepository.findByUserID(
-      data.userId
+    const isExistingStudent = await this.studentRepository.findByEmail(
+      data.email
     );
     if (isExistingStudent) {
-      this.logger.error("Student with this user ID already exists");
-      throw createHttpError(400, "Student with this user ID already exists");
+      this.logger.error("Student with this email already exists");
+      throw createHttpError(400, "Student with this email already exists");
     }
     const student = await this.studentRepository.create(data);
     this.logger.info("Student created successfully");
@@ -34,10 +34,7 @@ export class StudentService {
 
     if (!students || students.length === 0) {
       this.logger.warn("No students found.");
-      throw createHttpError(
-        404,
-        "No students found."
-      );
+      throw createHttpError(404, "No students found.");
     }
     this.logger.info("Fetched students successfully");
     return { students, total };

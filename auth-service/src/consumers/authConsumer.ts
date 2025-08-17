@@ -49,47 +49,48 @@ export async function startAuthConsumer() {
     try {
       switch (routingKey) {
         case Events.STUDENT_CREATED: {
+          const { studentId, email, firstName, lastName } =
+            data as EventPayloads[Events.STUDENT_CREATED];
+
+          await handleUserCreated({
+            externalId: studentId,
+            email,
+            firstName,
+            lastName,
+            role: UserRole.STUDENT,
+          });
           break;
         }
 
         case Events.TEACHER_CREATED: {
-          const { email, teacherId, firstName, lastName } =
+          const { teacherId, email, firstName, lastName } =
             data as EventPayloads[Events.TEACHER_CREATED];
 
-          const existingUser = await userService.findByEmail(email);
-          if (existingUser) {
-            logger.info(
-              `User with email ${email} already exists, skipping insert.`
-            );
-            break;
-          }
-
-          // create user
-          const user = await userService.save({
-            name: `${firstName} ${lastName}`,
-            email,
-            password: undefined,
-            role: UserRole.TEACHER,
+          await handleUserCreated({
             externalId: teacherId,
+            email,
+            firstName,
+            lastName,
+            role: UserRole.TEACHER,
           });
+          break;
+        }
 
-          // generate one-time verification token
-          const { token } = await tokenService.generateVerificationToken(user);
+        case Events.PARENT_CREATED: {
+          const { parentId, email, firstName, lastName } =
+            data as EventPayloads[Events.PARENT_CREATED];
 
-          // publish EMAIL_VERIFICATION event
-          await rabbitMq.publish<Events.EMAIL_VERIFICATION>(
-            Events.EMAIL_VERIFICATION,
-            {
-              name: `${firstName} ${lastName}`,
-              email,
-              role: UserRole.TEACHER,
-              verificationToken: token,
-            }
-          );
-
+          await handleUserCreated({
+            externalId: parentId,
+            email,
+            firstName,
+            lastName,
+            role: UserRole.PARENT,
+          });
           break;
         }
       }
+
       channel.ack(msg);
     } catch (error) {
       logger.error("Auth consumer error", error);
@@ -104,4 +105,45 @@ export async function startAuthConsumer() {
   };
   process.on("SIGINT", shutdown);
   process.on("SIGTERM", shutdown);
+}
+
+async function handleUserCreated({
+  externalId,
+  email,
+  firstName,
+  lastName,
+  role,
+}: {
+  externalId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+}) {
+  // check if user already exists
+  const existingUser = await userService.findByEmail(email);
+  if (existingUser) {
+    logger.info(`User with email ${email} already exists, skipping insert.`);
+    return;
+  }
+
+  // create user
+  const user = await userService.save({
+    name: `${firstName} ${lastName}`,
+    email,
+    password: undefined,
+    role,
+    externalId,
+  });
+
+  // generate one-time verification token
+  const { token } = await tokenService.generateVerificationToken(user);
+
+  // publish EMAIL_VERIFICATION event
+  await rabbitMq.publish<Events.EMAIL_VERIFICATION>(Events.EMAIL_VERIFICATION, {
+    name: `${firstName} ${lastName}`,
+    email,
+    role,
+    verificationToken: token,
+  });
 }

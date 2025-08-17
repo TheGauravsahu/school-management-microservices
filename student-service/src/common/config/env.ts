@@ -8,7 +8,7 @@ const {
   DB_URL,
   RABBIT_MQ_URL,
   RABBIT_MQ_EXCHANGE,
-  EMAIL_QUEUE,
+  STUDENT_QUEUE,
   PREFETCH,
 } = process.env;
 
@@ -18,6 +18,6 @@ export const env = {
   DB_URL,
   RABBIT_MQ_URL,
   RABBIT_MQ_EXCHANGE,
-  EMAIL_QUEUE,
+  STUDENT_QUEUE,
   PREFETCH,
 };

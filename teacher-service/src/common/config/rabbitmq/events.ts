@@ -11,12 +11,15 @@ export interface EventPayloads {
   [Events.STUDENT_CREATED]: {
     studentId: string;
     email: string;
-    parentId: string;
+    firstName: string;
+    lastName: string;
   };
 
   [Events.PARENT_CREATED]: {
     parentId: string;
     email: string;
+    firstName: string;
+    lastName: string;
   };
 
   [Events.TEACHER_CREATED]: {

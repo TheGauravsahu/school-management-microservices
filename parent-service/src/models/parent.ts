@@ -2,8 +2,6 @@ import { IParent } from "./../types";
 import mongoose from "mongoose";
 
 const parentSchema = new mongoose.Schema<IParent>({
-  userId: { type: String, required: true },
-  studentIds: [{ type: String, requied: true }],
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, required: true },

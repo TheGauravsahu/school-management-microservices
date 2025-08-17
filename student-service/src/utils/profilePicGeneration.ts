@@ -5,14 +5,20 @@ export const generateProfilePicture = async (
 ) => {
   try {
     const seed = `${firstName}-${lastName}-${userId}`;
-    const dicebearApiUrl = `https://api.dicebear.com/9.x/initials/svg?seed=
-        ${encodeURIComponent(seed)}&backgroundColor=random&radius=50`;
-
-    const res = await fetch(dicebearApiUrl);
-    if (res.ok) {
-      return dicebearApiUrl;
-    }
-    return "";
+    const colors = [
+      "ffadad",
+      "ffd6a5",
+      "fdffb6",
+      "caffbf",
+      "9bf6ff",
+      "a0c4ff",
+      "bdb2ff",
+      "ffc6ff",
+    ];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    return `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+      seed
+    )}&backgroundColor=${randomColor}&radius=50`;
   } catch (error: any) {
     throw new Error(error.message || "Failed to generate profile picture");
   }

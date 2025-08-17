@@ -10,6 +10,8 @@ import { StudentQueryFilters } from "../types";
 import { PDFService } from "../services/pdfService";
 import { Parser } from "json2csv";
 import { generateExportFileName } from "../utils/fileNameGenerator";
+import { RabbitMQ } from "../common/config/rabbitmq";
+import { Events } from "../common/config/rabbitmq/events";
 
 const SERVICE_NAME = "STUDENT_SERVICE";
 
@@ -17,13 +19,23 @@ export class StudentController {
   constructor(
     private studentService: StudentService,
     private pdfService: PDFService,
-    private logger: Logger
+    private rabbitMq: RabbitMQ,
+    private logger: Logger,
   ) {}
 
   async createStudent(req: Request, res: Response, next: NextFunction) {
     try {
       const studentData = req.body;
       const newStudent = await this.studentService.createStudent(studentData);
+
+      // publish STUDENT_CREATED event
+      this.rabbitMq.publish<Events.STUDENT_CREATED>(Events.STUDENT_CREATED,{
+        studentId: newStudent._id as string,
+        email: newStudent.email,
+        firstName: newStudent.firstName,
+        lastName: newStudent.lastName,
+      })
+      
       res.status(201).json({
         success: true,
         message: "Student created successfully",

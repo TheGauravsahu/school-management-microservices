@@ -9,15 +9,19 @@ import { authorizeRoles } from "../common/middlewares/authorizeRoles";
 import { asyncHandler } from "../common/middlewares/asyncHandler";
 import { UserRole } from "../common/types";
 import { PDFService } from "../services/pdfService";
+import { RabbitMQ } from "../common/config/rabbitmq";
 
 const router: express.Router = express.Router();
 
 const studentRepository = new StudentRepostory(logger);
 const studentService = new StudentService(studentRepository, logger);
 const pdfService = new PDFService();
+const rabbitMQ = new RabbitMQ();
+
 const studentController = new StudentController(
   studentService,
   pdfService,
+  rabbitMQ,
   logger
 );
 

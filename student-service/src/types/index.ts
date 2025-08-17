@@ -8,8 +8,7 @@ import {
 } from "../models/consonants";
 
 export interface IStudent extends mongoose.Document {
-  userId: string; // from auth-service
-  parentId: string; // from parent-service
+  parentIds: string[]; // from parent-service
 
   email: string;
   mobileNumber: string;

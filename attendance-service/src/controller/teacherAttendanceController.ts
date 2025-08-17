@@ -4,8 +4,9 @@ import {
 } from "../services/teacherAttendanceService";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { Logger } from "winston";
-import createHttpError from "http-errors";
 import { AttendanceStatus } from "../common/types";
+import { validateDate } from "../validators/attendanceDate.validator";
+import createHttpError from "http-errors";
 
 const SERVICE_NAME = "ATTENDANCE_SERVICE";
 
@@ -34,11 +35,10 @@ export class TeacherAttendanceController {
     reply: FastifyReply
   ) {
     const { date } = req.query;
-    if (!date) {
-      throw createHttpError(400, "No attendance records found.");
-    }
+    validateDate(date);
+
     const result = await this.teacherAttendanceService.getAttendanceByDate(
-      date
+      String(date)
     );
 
     reply.code(200).send({
@@ -80,6 +80,8 @@ export class TeacherAttendanceController {
   ) {
     const { id } = req.params;
     const { status } = req.body;
+    if (!status) throw createHttpError(400, "Attendance status is required.");
+    
     const result = await this.teacherAttendanceService.updateAttendance(
       id,
       status

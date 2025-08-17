@@ -9,14 +9,16 @@ import {
 } from "typeorm";
 
 @Entity("teacher_attendance")
-@Index(["teacher", "date"], { unique: true })
+@Index(["teacherId","date"], { unique: true })
 export class TeacherAttendance {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  @Column({ nullable: false })
+  teacherId: string;
+
   @Column({ type: "jsonb", nullable: false })
   teacher: {
-    id: string;
     name: string;
     email: string;
   };

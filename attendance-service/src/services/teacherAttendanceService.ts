@@ -22,22 +22,31 @@ export class TeacherAttendanceService {
   ) {}
 
   async markAttendance(dto: MarkTeacherAttendanceDto) {
+    const today = new Date().toISOString().split("T")[0];
+
+    // Validation: date must equal today
+    if (dto.date !== today) {
+      throw createHttpError(
+        400,
+        `Attendance can only be marked for today ${today}.`
+      );
+    }
+
     const existing = await this.teacherAttendanceRepository.findOne({
       where: {
         date: dto.date,
-        teacher: {
-          id: dto.teacher.id,
-        },
+        teacherId: dto.teacher.id,
       },
     });
     if (existing) {
       this.logger.info(
         `Attendance already marked for teacher ${dto.teacher.id} on ${dto.date}`
       );
-      throw createHttpError(400, "Attendance already marked for the teaher");
+      throw createHttpError(400, "Attendance already marked for the teacher");
     }
 
     const attendance = this.teacherAttendanceRepository.create({
+      teacherId: dto.teacher.id,
       teacher: dto.teacher,
       date: dto.date,
       status: dto.status,
@@ -55,12 +64,12 @@ export class TeacherAttendanceService {
   async getAttendanceForTeacher(
     teacherId: string,
     month?: number,
-    year?: number
+    year?: number,
   ) {
     const qb =
       this.teacherAttendanceRepository.createQueryBuilder("attendance");
 
-    qb.where("attendance.teacher->>'id' = :teacherId", { teacherId });
+    qb.where("attendance.teacherId = :teacherId", { teacherId });
 
     if (month && year) {
       qb.andWhere("EXTRACT(MONTH FROM attendance.date) = :month", { month });

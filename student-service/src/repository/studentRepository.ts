@@ -47,9 +47,6 @@ export class StudentRepostory {
   async findByEmail(email: string) {
     try {
       const student = await studentModel.findOne({ email });
-      if (!student) {
-        throw new Error("Student not found with the provided email");
-      }
       return student;
     } catch (error) {
       this.logger.error("Error fetching student by email", error);

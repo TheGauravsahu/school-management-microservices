@@ -12,15 +12,12 @@ import {
 
 const studentSchema = new mongoose.Schema<IStudent>(
   {
-    userId: { type: String, required: true },
-    parentId: { type: String, required: true },
+    parentIds: [{ type: String, required: true }],
 
     email: { type: String, required: true, unique: true, trim: true },
     mobileNumber: {
       type: String,
       required: true,
-      unique: true,
-      match: /^[6-9]\d{9}$/,
     },
     aadhaarNumber: {
       type: String,
@@ -71,7 +68,7 @@ studentSchema.pre("save", async function (next) {
       const profilePicUrl = await generateProfilePicture(
         this.firstName,
         this.lastName,
-        this.userId
+        this._id as string
       );
       if (profilePicUrl) {
         this.profilePicture = profilePicUrl;

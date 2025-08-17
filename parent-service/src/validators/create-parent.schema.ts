@@ -4,8 +4,6 @@ const createParentSchema: FastifySchema = {
   body: {
     type: "object",
     required: [
-      "userId",
-      "studentIds",
       "firstName",
       "lastName",
       "email",
@@ -14,16 +12,6 @@ const createParentSchema: FastifySchema = {
       "address",
     ],
     properties: {
-      userId: {
-        type: "string",
-        minLength: 1,
-        errorMessage: "User ID is required",
-      },
-      studentIds: {
-        type: "array",
-        minItems: 1,
-        errorMessage: "At least one student ID is required",
-      },
       firstName: {
         type: "string",
         minLength: 2,
