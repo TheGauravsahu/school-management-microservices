@@ -1,3 +1,5 @@
+import { Events } from "../common/config/rabbitmq/events";
+import { RabbitMQ } from "../common/config/rabbitmq";
 import { AttendanceStatus } from "../common/types";
 import {
   MarkStudentAttendanceDto,
@@ -11,7 +13,8 @@ import { Logger } from "winston";
 export class StudentAttendanceService {
   constructor(
     private logger: Logger,
-    private studentAttendanceRepository: Repository<StudentAttendance>
+    private studentAttendanceRepository: Repository<StudentAttendance>,
+    private rabbitMQ: RabbitMQ
   ) {}
 
   async findAttendanceForStudent(
@@ -23,9 +26,7 @@ export class StudentAttendanceService {
       where: {
         classNumber,
         date,
-        student: {
-          id: studentId,
-        },
+        studentId,
       },
     });
   }
@@ -58,38 +59,79 @@ export class StudentAttendanceService {
   }
 
   async markBulkAttendance(dto: MarkStudentsAttendanceDto) {
-    const records = [];
+    try {
+      const records = [];
 
-    for (const student of dto.students) {
-      const existing = await this.findAttendanceForStudent(
-        dto.classNumber,
-        dto.date,
-        student.id
-      );
-      if (existing) {
-        existing.status = student.status;
-        existing.remarks = student.remarks;
-        await this.studentAttendanceRepository.save(existing);
-        continue;
+      for (const student of dto.students) {
+        const existing = await this.findAttendanceForStudent(
+          dto.classNumber,
+          dto.date,
+          student.id
+        );
+        if (existing) {
+          existing.status = student.status;
+          existing.remarks = student.remarks;
+          await this.studentAttendanceRepository.save(existing);
+
+          // 🔔 If absent, publish event
+          if (student.status === AttendanceStatus.ABSENT) {
+            await this.rabbitMQ.publish<Events.STUDENT_ABSENT>(
+              Events.STUDENT_ABSENT,
+              {
+                studentId: student.id,
+                name: student.name,
+                email: student.email,
+                parentEmail: student.parentEmail,
+                date: dto.date,
+                classNumber: dto.classNumber,
+              }
+            );
+          }
+          continue;
+        }
+
+        const attendance = this.studentAttendanceRepository.create({
+          teacherId: dto.teacherId,
+          studentId: student.id,
+          student: {
+            name: student.name,
+            email: student.email,
+            rollNumber: student.rollNumber,
+            parentId: student.parentId,
+            parentEmail: student.parentEmail,
+          },
+          date: dto.date,
+          classNumber: dto.classNumber,
+          status: student.status,
+          remarks: student.remarks,
+        });
+
+        records.push(attendance);
+
+        // 🔔 Publish absent notification if new record is absent
+        if (student.status === AttendanceStatus.ABSENT) {
+          await this.rabbitMQ.publish(Events.STUDENT_ABSENT, {
+            studentId: student.id,
+            email: student.email,
+            parentEmail: student.parentEmail,
+            name: student.name,
+            date: dto.date,
+            classNumber: dto.classNumber,
+          });
+        }
       }
 
-      const attendance = this.studentAttendanceRepository.create({
-        teacherId: dto.teacherId,
-        student,
-        date: dto.date,
-        classNumber: dto.classNumber,
-        status: student.status,
-        remarks: student.remarks,
-      });
+      if (records.length > 0) {
+        await this.studentAttendanceRepository.save(records);
+      }
 
-      records.push(attendance);
+      return { count: records.length };
+    } catch (error) {
+      this.logger.error("Error marking students attedace", error);
+      throw createHttpError(
+        error.message || "Error marking students attendace"
+      );
     }
-
-    if (records.length > 0) {
-      await this.studentAttendanceRepository.save(records);
-    }
-
-    return { count: records.length };
   }
 
   async getAttendanceByClassAndDate(classNumber: number, date: string) {

@@ -4,6 +4,7 @@ export enum Events {
   PARENT_CREATED = "parent.created",
   PASSWORD_RESET = "auth.user.password_reset",
   EMAIL_VERIFICATION = "auth.user.email_verification",
+  STUDENT_ABSENT = "attendance.student.absent",
 }
 
 // Define payloads for each event
@@ -39,5 +40,14 @@ export interface EventPayloads {
     email: string;
     role: string;
     verificationToken: string;
+  };
+
+  [Events.STUDENT_ABSENT]: {
+    studentId: string;
+    name: string;
+    email: string;
+    parentEmail: string;
+    date: string;
+    classNumber: number;
   };
 }

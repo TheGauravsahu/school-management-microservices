@@ -77,6 +77,20 @@ export async function startEmailConsumer(handleConcurrency = 3) {
           await sendEmail(email, `Activate Your ${accountType} Account`, html);
           break;
         }
+
+        case Events.STUDENT_ABSENT: {
+          const { email, name, date, classNumber } =
+            data as EventPayloads[Events.STUDENT_ABSENT];
+
+          const html = `
+    <p>Hello ${name},</p>
+    <p>This is to inform you that you were marked <b>Absent</b> on <b>${date}</b> in class <b>${classNumber}</b>.</p>
+    <p>If this is a mistake, please contact your teacher.</p>
+  `;
+
+          await sendEmail(email, "Attendance Notification - Absent", html);
+          break;
+        }
       }
       channel.ack(msg);
     } catch (error) {

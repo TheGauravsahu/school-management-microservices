@@ -41,7 +41,9 @@ export class StudentAttendanceController {
     reply.code(201).send({
       success: true,
       message: "Attendance marked successfully.",
-      data: record,
+      data: {
+        total_presence: record.count,
+      },
       data_from: SERVICE_NAME,
     });
   }

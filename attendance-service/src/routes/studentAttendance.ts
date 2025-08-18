@@ -11,12 +11,16 @@ import {
 import { authenticateToken } from "../middlewares/auth";
 import { authorizeRoles } from "../middlewares/authorizeRoles";
 import { UserRole } from "../common/types";
+import { RabbitMQ } from "../common/config/rabbitmq";
+import { createStudentsAttendanceSchema } from "../validators/studentsAttendance.validator";
 
 const studentAttendanceRepository =
   AppDataSource.getRepository(StudentAttendance);
+const rabbitMQ = new RabbitMQ();
 const studentAttendanceService = new StudentAttendanceService(
   logger,
-  studentAttendanceRepository
+  studentAttendanceRepository,
+  rabbitMQ
 );
 const studentAttendanceController = new StudentAttendanceController(
   logger,
@@ -37,6 +41,7 @@ async function studentAttendanceRouter(fastify: FastifyInstance) {
 
   fastify.post<{ Body: MarkStudentsAttendanceDto }>(
     "/all",
+    { schema: createStudentsAttendanceSchema },
     studentAttendanceController.markAttendaces.bind(studentAttendanceController)
   );
 
