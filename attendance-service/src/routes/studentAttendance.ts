@@ -56,7 +56,7 @@ async function studentAttendanceRouter(fastify: FastifyInstance) {
     Params: { studentId: string };
     Querystring: { month?: number; year?: number };
   }>(
-    "/student/:studentId",
+    "/:studentId",
     studentAttendanceController.getAttendanceForStudent.bind(
       studentAttendanceController
     )

@@ -148,7 +148,7 @@ export class StudentAttendanceService {
     const qb =
       this.studentAttendanceRepository.createQueryBuilder("attendance");
 
-    qb.where("attendance.student->>'id' = :studentId", { studentId });
+    qb.where("attendance.studentId = :studentId", { studentId });
 
     if (month && year) {
       qb.andWhere("EXTRACT(MONTH FROM attendance.date) = :month", { month });

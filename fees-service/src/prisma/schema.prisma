@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model FeeStructure {
+  id             String    @id @default(uuid())
+  classNumber    Int       @unique @map("class_number")
+  tutionFee      Int       @map("tution_fee")
+  transportFee   Int?      @map("transport_fee")
+  developmentFee Int       @map("development_fee")
+  misc           Int?
+  invoices       Invoice[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("fee_structure")
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  studentId      String        @unique @map("student_id")
+  total          Int
+  status         InvoiceStatus @default(PENDING)
+  dueDate        DateTime
+  payments       Payment[]
+  feeStructureId String
+  feeStructure   FeeStructure  @relation(fields: [feeStructureId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  amount    Int
+  method    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+}

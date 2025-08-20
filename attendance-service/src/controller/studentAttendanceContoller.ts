@@ -7,6 +7,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { Logger } from "winston";
 import createHttpError from "http-errors";
 import { AttendanceStatus } from "../common/types";
+import { validateDate } from "../validators/attendanceDate.validator";
 
 const SERVICE_NAME = "ATTENDANCE_SERVICE";
 
@@ -35,6 +36,7 @@ export class StudentAttendanceController {
     reply: FastifyReply
   ) {
     this.logger.info("Request for marking students attendace", req.body);
+    validateDate(req.body.date);
     const record = await this.studentAttendanceService.markBulkAttendance(
       req.body
     );
@@ -54,8 +56,10 @@ export class StudentAttendanceController {
   ) {
     const { classNumber, date } = req.query;
     if (!classNumber || !date) {
-      throw createHttpError(400, "No attendance records found.");
+      throw createHttpError(400, "Class number and Date is required.");
     }
+    validateDate(date);
+
     const result =
       await this.studentAttendanceService.getAttendanceByClassAndDate(
         classNumber,
@@ -64,7 +68,7 @@ export class StudentAttendanceController {
 
     reply.code(200).send({
       success: true,
-      message: "Attendance marked successfully.",
+      message: "Attendance fetched successfully by date and class.",
       data: result,
       data_from: SERVICE_NAME,
     });
