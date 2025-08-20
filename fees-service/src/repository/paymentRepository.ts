@@ -1,5 +1,5 @@
 import { Logger } from "winston";
-import { Prisma, PrismaClient } from "../prisma/generated/prisma";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 export class PaymentRepository {
   constructor(private db: PrismaClient, private logger: Logger) {}
