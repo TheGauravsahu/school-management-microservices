@@ -2,17 +2,47 @@ import { Logger } from "winston";
 import { InvoiceRepository } from "../repository/invoiceRepository";
 import createHttpError from "http-errors";
 import { InvoiceStatus, Prisma } from "@prisma/client";
+import { FeesRepository } from "../repository/feesRepository";
+import { createInvoiceDto } from "../dto/createInvoice.dto";
 
 export class InvoiceService {
   constructor(
     private logger: Logger,
-    private invoiceRepository: InvoiceRepository
+    private invoiceRepository: InvoiceRepository,
+    private feeRepository: FeesRepository
   ) {}
 
-  async createInvoice(data: Prisma.InvoiceCreateInput) {
+  async createInvoice(data: createInvoiceDto) {
     try {
       this.logger.info("Creating invoice", { studentId: data.studentId });
-      return await this.invoiceRepository.create(data);
+
+      // get fee strucutre
+      const feeStructure = await this.feeRepository.findById(
+        data.feeStructureId
+      );
+      if (!feeStructure) {
+        throw createHttpError(404, "Fee structure not found");
+      }
+
+      // calculate total
+      const total =
+        feeStructure.tutionFee +
+        (feeStructure.transportFee || 0) +
+        feeStructure.developmentFee +
+        (feeStructure.misc || 0);
+
+      const invoice = await this.invoiceRepository.create({
+        studentId: data.studentId,
+        studentEmail: data.studentEmail,
+        dueDate: data.dueDate,
+        status: data.status,
+        total,
+        feeStructure: {
+          connect: { id: data.feeStructureId },
+        },
+      });
+
+      return invoice;
     } catch (err: any) {
       this.logger.error("Error creating invoice", { error: err.message });
       throw createHttpError(500, "Failed to create invoice");

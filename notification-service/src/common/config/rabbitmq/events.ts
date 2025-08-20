@@ -5,6 +5,9 @@ export enum Events {
   PASSWORD_RESET = "auth.user.password_reset",
   EMAIL_VERIFICATION = "auth.user.email_verification",
   STUDENT_ABSENT = "attendance.student.absent",
+
+  INVOICE_CREATED = "invoice.created",
+  INVOICE_PAID = "invoice.paid",
 }
 
 // Define payloads for each event
@@ -49,5 +52,40 @@ export interface EventPayloads {
     parentEmail: string;
     date: string;
     classNumber: number;
+  };
+
+  [Events.INVOICE_CREATED]: {
+    id: string;
+    studentId: string;
+    feeStructure: {
+      id: string;
+      createdAt: Date;
+      updatedAt: Date;
+      classNumber: number;
+      tutionFee: number;
+      transportFee: number | null;
+      developmentFee: number;
+      misc: number | null;
+    };
+    total: number;
+    dueDate: string;
+    email: string;
+  };
+
+  [Events.INVOICE_PAID]: {
+    id: string;
+    studentId: string;
+    feeStructure: {
+      id: string;
+      createdAt: Date;
+      updatedAt: Date;
+      classNumber: number;
+      tutionFee: number;
+      transportFee: number | null;
+      developmentFee: number;
+      misc: number | null;
+    };
+    total: number;
+    email: string;
   };
 }

@@ -1,0 +1,136 @@
+import { EventPayloads, Events } from "../common/config/rabbitmq/events";
+
+export function generateInvoiceHTML(
+  data: EventPayloads[Events.INVOICE_CREATED]
+) {
+  return `
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        color: #333;
+      }
+      .header {
+        height: 200px;
+        padding: 2px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: url("https://plus.unsplash.com/premium_photo-1701590725523-984a41d4b635?q=80&w=1031&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+        background-size: cover;
+        color: white;
+        border-radius: 8px;
+      }
+      .header-info {
+        display: flex;
+        gap: 10px;
+      }
+      .logo {
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .invoice-title {
+        text-align: center;
+        margin: 30px 0;
+        font-size: 22px;
+      }
+      .info {
+        margin-bottom: 20px;
+      }
+      .info p {
+        margin: 2px 0;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background: #f5f5f5;
+      }
+      .totals {
+        margin-top: 20px;
+        text-align: right;
+      }
+      .totals p {
+        margin: 5px 0;
+        font-weight: bold;
+      }
+      .footer {
+        margin-top: 40px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-info">
+        <p>Admin |</p>
+        <p>gauravv.sahu2011@gmail.com |</p>
+        <p>222 555 777</p>
+      </div>
+      <div class="logo">SCHOOL MICROSERVICES</div>
+    </div>
+
+    <h2 class="invoice-title">School Invoice</h2>
+
+    <div class="info">
+      <p><strong>Invoice Number:</strong> ${data.id}</p>
+      <p><strong>School Name:</strong> School Micorservices</p>
+      <p><strong>School Address:</strong> 11, Acer PC</p>
+      <p><strong>Email:</strong> gauravv.sahu2011@gmail.com</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description of Services</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Tution Fee</td>
+          <td>${data.feeStructure.tutionFee}</td>
+        </tr>
+        <tr>
+          <td>Transport Fee</td>
+          <td>${data.feeStructure.transportFee}</td>
+        </tr>
+        <tr>
+          <td>Development Fee</td>
+           <td>${data.feeStructure.developmentFee}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <p>Total Amount Due: Rs.${data.total}</p>
+    </div>
+
+    <div class="footer">
+      <p>
+        <strong>Bank Transfer:</strong> Please make payments to
+        <b>School Micorservices</b>
+      </p>
+      <p>Account Number: 777777 at <b>GBI</b></p>
+      <p><strong>Payment Due Date:</strong> ${data.dueDate}</p>
+      <p>For any questions, contact us at gaurav.sahu2011@gmail.com</p>
+    </div>
+  </body>
+</html>
+
+`;
+}

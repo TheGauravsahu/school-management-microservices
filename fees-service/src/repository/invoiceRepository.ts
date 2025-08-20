@@ -1,15 +1,14 @@
 import { Logger } from "winston";
-import {
-  InvoiceStatus,
-  PrismaClient,
-  Prisma,
-} from "@prisma/client";
+import { InvoiceStatus, PrismaClient, Prisma } from "@prisma/client";
 
 export class InvoiceRepository {
   constructor(private db: PrismaClient, private logger: Logger) {}
 
   async create(data: Prisma.InvoiceCreateInput) {
-    return await this.db.invoice.create({ data });
+    return await this.db.invoice.create({
+      data,
+      include: { feeStructure: true },
+    });
   }
 
   async findByStudentId(studentId: string) {
@@ -30,6 +29,7 @@ export class InvoiceRepository {
     return await this.db.invoice.update({
       where: { id },
       data: { status: InvoiceStatus.PAID },
+      include: { feeStructure: true },
     });
   }
 }

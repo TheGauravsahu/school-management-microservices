@@ -24,6 +24,7 @@ model FeeStructure {
 model Invoice {
   id             String        @id @default(uuid())
   studentId      String        @unique @map("student_id")
+  studentEmail   String        @unique @map("student_email")
   total          Int
   status         InvoiceStatus @default(PENDING)
   dueDate        DateTime

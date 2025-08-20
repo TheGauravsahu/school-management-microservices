@@ -1,0 +1,5 @@
+ignoredBuiltDependencies:
+  - puppeteer
+
+onlyBuiltDependencies:
+  - puppeteer

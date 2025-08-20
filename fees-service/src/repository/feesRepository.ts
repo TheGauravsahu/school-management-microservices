@@ -8,6 +8,12 @@ export class FeesRepository {
     return await this.db.feeStructure.create({ data });
   }
 
+  async findById(id: string) {
+    return await this.db.feeStructure.findUnique({
+      where: { id },
+    });
+  }
+
   async findByClass(classNumber: number) {
     this.logger.info("Querying feeStructure", classNumber);
     return await this.db.feeStructure.findUnique({
