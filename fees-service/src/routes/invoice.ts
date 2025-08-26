@@ -9,15 +9,12 @@ import logger from "../common/config/logger";
 import { InvoiceService } from "../services/invoiceService";
 import { InvoiceController } from "../controllers/invoiceController";
 import { RabbitMQ } from "../common/config/rabbitmq";
-import { FeesRepository } from "../repository/feesRepository";
 
 const rabbitMQ = new RabbitMQ();
 const invoiceRepository = new InvoiceRepository(db, logger);
-const feeRepository = new FeesRepository(db, logger);
 const invoiceService = new InvoiceService(
   logger,
   invoiceRepository,
-  feeRepository
 );
 const invoiceController = new InvoiceController(
   logger,
@@ -26,8 +23,8 @@ const invoiceController = new InvoiceController(
 );
 
 export default async function invoiceRoutes(fastify: FastifyInstance) {
-  // fastify.addHook("preHandler", authenticateToken);
-  // fastify.addHook("preHandler", authorizeRoles([UserRole.ADMIN]));
+  fastify.addHook("preHandler", authenticateToken);
+  fastify.addHook("preHandler", authorizeRoles([UserRole.ADMIN]));
 
   fastify.post(
     "/",

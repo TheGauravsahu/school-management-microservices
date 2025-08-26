@@ -20,22 +20,19 @@ export class StudentController {
     private studentService: StudentService,
     private pdfService: PDFService,
     private rabbitMq: RabbitMQ,
-    private logger: Logger,
+    private logger: Logger
   ) {}
 
   async createStudent(req: Request, res: Response, next: NextFunction) {
     try {
       const studentData = req.body;
       const newStudent = await this.studentService.createStudent(studentData);
-
       // publish STUDENT_CREATED event
-      this.rabbitMq.publish<Events.STUDENT_CREATED>(Events.STUDENT_CREATED,{
-        studentId: newStudent._id as string,
-        email: newStudent.email,
-        firstName: newStudent.firstName,
-        lastName: newStudent.lastName,
-      })
-      
+      await this.rabbitMq.publish<Events.STUDENT_CREATED>(
+        Events.STUDENT_CREATED,
+        newStudent as any
+      );
+
       res.status(201).json({
         success: true,
         message: "Student created successfully",

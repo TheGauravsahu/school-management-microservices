@@ -7,32 +7,80 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model FeeStructure {
-  id             String    @id @default(uuid())
-  classNumber    Int       @unique @map("class_number")
-  tutionFee      Int       @map("tution_fee")
-  transportFee   Int?      @map("transport_fee")
-  developmentFee Int       @map("development_fee")
-  misc           Int?
-  invoices       Invoice[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+model StudentCache {
+  id           String    @id
+  name         String
+  class        Int
+  rollNo       Int
+  mobileNumber String
+  email        String
+  invoices     Invoice[]
+}
 
-  @@map("fee_structure")
+model AcademicSession {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+
+  feeStructures FeeStructure[]
+  invoices      Invoice[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum FeeType {
+  ONE_TIME
+  RECURRING
+}
+
+enum FeeFrequency {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+model FeeStructure {
+  id          String          @id @default(uuid())
+  name        String
+  amount      Int
+  feeType     FeeType
+  frequency   FeeFrequency?
+  sessionId   String
+  session     AcademicSession @relation(fields: [sessionId], references: [id])
+  invoiceItems InvoiceItem[]
 }
 
 model Invoice {
-  id             String        @id @default(uuid())
-  studentId      String        @unique @map("student_id")
-  studentEmail   String        @unique @map("student_email")
-  total          Int
-  status         InvoiceStatus @default(PENDING)
-  dueDate        DateTime
-  payments       Payment[]
+  id        String          @id @default(uuid())
+  studentId String
+  student   StudentCache    @relation(fields: [studentId], references: [id])
+  sessionId String
+  session   AcademicSession @relation(fields: [sessionId], references: [id])
+  total     Int
+  status    InvoiceStatus   @default(PENDING)
+  dueDate   DateTime
+
+  items     InvoiceItem[]
+  payments  Payment[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([studentId, sessionId]) // one invoice per student per session
+}
+
+model InvoiceItem {
+  id             String       @id @default(uuid())  
+  invoiceId      String
+  invoice        Invoice      @relation(fields: [invoiceId], references: [id])
   feeStructureId String
-  feeStructure   FeeStructure  @relation(fields: [feeStructureId], references: [id])
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  feeStructure   FeeStructure @relation(fields: [feeStructureId], references: [id])
+  month          Int? // only for recurring fees
+  year           Int?
+  amount         Int
+  paid           Int          @default(0)
+  waiver         Int          @default(0)
+  pending        Int // auto = amount - (paid + waiver)
 }
 
 model Payment {

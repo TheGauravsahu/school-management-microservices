@@ -49,14 +49,13 @@ export async function startAuthConsumer() {
     try {
       switch (routingKey) {
         case Events.STUDENT_CREATED: {
-          const { studentId, email, firstName, lastName } =
+          const { _id, email, name } =
             data as EventPayloads[Events.STUDENT_CREATED];
 
           await handleUserCreated({
-            externalId: studentId,
+            externalId: _id,
             email,
-            firstName,
-            lastName,
+            name,
             role: UserRole.STUDENT,
           });
           break;
@@ -69,8 +68,7 @@ export async function startAuthConsumer() {
           await handleUserCreated({
             externalId: teacherId,
             email,
-            firstName,
-            lastName,
+            name: `${firstName} ${lastName}`,
             role: UserRole.TEACHER,
           });
           break;
@@ -83,8 +81,7 @@ export async function startAuthConsumer() {
           await handleUserCreated({
             externalId: parentId,
             email,
-            firstName,
-            lastName,
+            name: `${firstName} ${lastName}`,
             role: UserRole.PARENT,
           });
           break;
@@ -110,14 +107,12 @@ export async function startAuthConsumer() {
 async function handleUserCreated({
   externalId,
   email,
-  firstName,
-  lastName,
+  name,
   role,
 }: {
   externalId: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   role: UserRole;
 }) {
   // check if user already exists
@@ -129,7 +124,7 @@ async function handleUserCreated({
 
   // create user
   const user = await userService.save({
-    name: `${firstName} ${lastName}`,
+    name,
     email,
     password: undefined,
     role,
@@ -141,7 +136,7 @@ async function handleUserCreated({
 
   // publish EMAIL_VERIFICATION event
   await rabbitMq.publish<Events.EMAIL_VERIFICATION>(Events.EMAIL_VERIFICATION, {
-    name: `${firstName} ${lastName}`,
+    name,
     email,
     role,
     verificationToken: token,

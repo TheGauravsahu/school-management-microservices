@@ -18,19 +18,35 @@ export class InvoiceController {
     req: FastifyRequest<{ Body: createInvoiceDto }>,
     reply: FastifyReply
   ) {
-    this.logger.info("A new request recieved for creating invoice.", req.body);
+    this.logger.info("A new request received for creating invoice.", req.body);
+
     const invoice = await this.invoiceService.createInvoice(req.body);
 
     // publish invoice.created
     await this.rabbitMQ.publish<Events.INVOICE_CREATED>(
       Events.INVOICE_CREATED,
       {
-        id: invoice.id,
-        studentId: invoice.studentId,
-        feeStructure: invoice.feeStructure,
-        total: invoice.total,
+        invoiceId: invoice.id,
         dueDate: invoice.dueDate.toISOString(),
-        email: invoice.studentEmail,
+        student: {
+          id: invoice.student.id,
+          name: invoice.student.name,
+          email: invoice.student.email,
+          mobileNumber: invoice.student.mobileNumber,
+          rollNo: invoice.student.rollNo,
+          class: invoice.student.class,
+        },
+        session: {
+          id: invoice.session.id,
+          name: invoice.session.name,
+        },
+        total: invoice.total,
+        items: invoice.items.map((i) => ({
+          feeName: i.feeStructure.name,
+          amount: i.amount,
+          month: i.month ?? undefined,
+          year: i.year ?? undefined,
+        })),
       }
     );
 
@@ -79,13 +95,13 @@ export class InvoiceController {
     const invoice = await this.invoiceService.markInvoicePaid(req.params.id);
 
     // publish invoice.paid
-    await this.rabbitMQ.publish<Events.INVOICE_PAID>(Events.INVOICE_PAID, {
-      id: invoice.id,
-      studentId: invoice.studentId,
-      feeStructure: invoice.feeStructure,
-      total: invoice.total,
-      email: invoice.studentEmail,
-    });
+    // await this.rabbitMQ.publish<Events.INVOICE_PAID>(Events.INVOICE_PAID, {
+    //   id: invoice.id,
+    //   studentId: invoice.studentId,
+    //   feeStructure: invoice.,
+    //   total: invoice.total,
+    //   email: invoice.student,
+    // });
 
     return reply.code(200).send({
       success: true,

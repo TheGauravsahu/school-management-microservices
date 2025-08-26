@@ -47,7 +47,7 @@ export class RabbitMQ {
     await this.confirmChannel.assertExchange(env.RABBIT_MQ_EXCHANGE!, "topic", {
       durable: true,
     });
-    logger.info("Confirm  channela and exchange ready.");
+    logger.info("Confirm  channel and exchange ready.");
 
     return this.confirmChannel;
   }

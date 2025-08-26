@@ -1,8 +1,9 @@
 import Fastify from "fastify";
 import ajvErrors from "ajv-errors";
-import feesRoutes from "./routes/feesStructure";
+import feeStructureRoutes from "./routes/feeStructure";
 import paymentRoutes from "./routes/payment";
 import invoiceRoutes from "./routes/invoice";
+import academicSessionRoutes from "./routes/academicSession";
 
 const app = Fastify({
   logger: true,
@@ -14,7 +15,8 @@ const app = Fastify({
   },
 });
 
-app.register(feesRoutes, { prefix: "/api/v1/fees" });
+app.register(academicSessionRoutes, { prefix: "/api/v1/sessions" });
+app.register(feeStructureRoutes, { prefix: "/api/v1/feeStructure" });
 app.register(invoiceRoutes, { prefix: "/api/v1/invoices" });
 app.register(paymentRoutes, { prefix: "/api/v1/payments" });
 

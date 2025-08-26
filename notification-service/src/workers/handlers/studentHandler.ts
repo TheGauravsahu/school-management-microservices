@@ -5,7 +5,7 @@ import { studentCreatedTemplate } from "../../templates/studentCreated";
 export async function handleStudentCreated(
   data: EventPayloads[Events.STUDENT_CREATED]
 ) {
-  const { email, firstName, lastName } = data;
-  const html = studentCreatedTemplate(firstName, lastName);
+  const { email, name } = data;
+  const html = studentCreatedTemplate(name);
   await sendEmail(email, "Student Account Created", html);
 }

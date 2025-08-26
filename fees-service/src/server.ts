@@ -1,11 +1,13 @@
 import app from "./app";
 import { env } from "./common/config/env";
 import logger from "./common/config/logger";
+import { startStudentConsumer } from "./consumers/studentConsumer";
 
 const PORT = Number(env.PORT);
 
 const startServer = async () => {
   try {
+    await startStudentConsumer();
     app.listen({ port: Number(PORT) });
     logger.info(`🚀 Fees service is running on port ${PORT}`);
   } catch (error: unknown) {

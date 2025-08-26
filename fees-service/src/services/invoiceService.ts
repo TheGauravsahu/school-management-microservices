@@ -1,48 +1,51 @@
 import { Logger } from "winston";
 import { InvoiceRepository } from "../repository/invoiceRepository";
 import createHttpError from "http-errors";
-import { InvoiceStatus, Prisma } from "@prisma/client";
-import { FeesRepository } from "../repository/feesRepository";
+import { InvoiceStatus } from "@prisma/client";
 import { createInvoiceDto } from "../dto/createInvoice.dto";
 
 export class InvoiceService {
   constructor(
     private logger: Logger,
-    private invoiceRepository: InvoiceRepository,
-    private feeRepository: FeesRepository
+    private invoiceRepository: InvoiceRepository
   ) {}
 
   async createInvoice(data: createInvoiceDto) {
     try {
       this.logger.info("Creating invoice", { studentId: data.studentId });
 
-      // get fee strucutre
-      const feeStructure = await this.feeRepository.findById(
-        data.feeStructureId
-      );
-      if (!feeStructure) {
-        throw createHttpError(404, "Fee structure not found");
-      }
-
-      // calculate total
-      const total =
-        feeStructure.tutionFee +
-        (feeStructure.transportFee || 0) +
-        feeStructure.developmentFee +
-        (feeStructure.misc || 0);
-
       const invoice = await this.invoiceRepository.create({
-        studentId: data.studentId,
-        studentEmail: data.studentEmail,
         dueDate: data.dueDate,
-        status: data.status,
-        total,
-        feeStructure: {
-          connect: { id: data.feeStructureId },
+        status: data.status || InvoiceStatus.PENDING,
+        total: data.total,
+        student: {
+          connect: { id: data.studentId },
+        },
+        session: {
+          connect: { id: data.sessionId },
         },
       });
 
-      return invoice;
+      for (const item of invoice.items) {
+        await this.invoiceRepository.createItem(invoice.id, {
+          feeStructure: {
+            connect: { id: item.feeStructureId },
+          },
+          invoice: {
+            connect: { id: item.invoiceId },
+          },
+          amount: item.amount,
+          month: item.month,
+          year: item.year,
+          pending: item.amount,
+        });
+      }
+
+      const invoiceWithItems = await this.getInvoiceById(
+        invoice.id
+      );
+
+      return invoiceWithItems;
     } catch (err: any) {
       this.logger.error("Error creating invoice", { error: err.message });
       throw createHttpError(500, "Failed to create invoice");

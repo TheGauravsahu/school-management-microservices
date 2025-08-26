@@ -3,6 +3,42 @@ import { EventPayloads, Events } from "../common/config/rabbitmq/events";
 export function generateInvoiceHTML(
   data: EventPayloads[Events.INVOICE_CREATED]
 ) {
+  // build summary table rows
+  const summaryRows = data.monthlySummary
+    .map(
+      (m) => `
+      <tr>
+        <td>${m.monthName}</td>
+        <td>${m.generated}</td>
+        <td>${m.receipt}</td>
+        <td>${m.waiver}</td>
+        <td>${m.pending}</td>
+      </tr>
+    `
+    )
+    .join("");
+
+  // build detailed rows
+  const detailRows = data.monthlyDetails
+    .map(
+      (m) => m.fees
+        .map(
+          (f) => `
+          <tr>
+            <td>${m.monthName}</td>
+            <td>${f.headName}</td>
+            <td>${f.totalValue}</td>
+            <td>${f.receipt}</td>
+            <td>${f.waiver}</td>
+            <td>${f.paid}</td>
+            <td>${f.pending}</td>
+          </tr>
+        `
+        )
+        .join("")
+    )
+    .join("");
+
   return `
 <html>
   <head>
@@ -18,7 +54,7 @@ export function generateInvoiceHTML(
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: url("https://plus.unsplash.com/premium_photo-1701590725523-984a41d4b635?q=80&w=1031&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+        background: url("https://plus.unsplash.com/premium_photo-1701590725523-984a41d4b635?q=80&w=1031&auto=format&fit=crop");
         background-size: cover;
         color: white;
         border-radius: 8px;
@@ -36,9 +72,6 @@ export function generateInvoiceHTML(
         margin: 30px 0;
         font-size: 22px;
       }
-      .info {
-        margin-bottom: 20px;
-      }
       .info p {
         margin: 2px 0;
       }
@@ -47,14 +80,9 @@ export function generateInvoiceHTML(
         border-collapse: collapse;
         margin-top: 20px;
       }
-      table,
-      th,
-      td {
+      th, td {
         border: 1px solid #ddd;
-      }
-      th,
-      td {
-        padding: 10px;
+        padding: 8px;
         text-align: left;
       }
       th {
@@ -87,50 +115,56 @@ export function generateInvoiceHTML(
     <h2 class="invoice-title">School Invoice</h2>
 
     <div class="info">
-      <p><strong>Invoice Number:</strong> ${data.id}</p>
-      <p><strong>School Name:</strong> School Micorservices</p>
-      <p><strong>School Address:</strong> 11, Acer PC</p>
-      <p><strong>Email:</strong> gauravv.sahu2011@gmail.com</p>
+      <p><strong>Invoice Number:</strong> ${data.invoiceId}</p>
+      <p><strong>Student:</strong> ${data.student.name} (Class ${data.student.classNumber})</p>
+      <p><strong>Email:</strong> ${data.student.email}</p>
+      <p><strong>Session:</strong> ${data.sessionName}</p>
     </div>
 
+    <h3>Monthly Summary</h3>
     <table>
       <thead>
         <tr>
-          <th>Description of Services</th>
-          <th>Subtotal</th>
+          <th>Month</th>
+          <th>Generated</th>
+          <th>Receipt</th>
+          <th>Waiver</th>
+          <th>Pending</th>
         </tr>
       </thead>
       <tbody>
+        ${summaryRows}
+      </tbody>
+    </table>
+
+    <h3>Detailed Breakdown</h3>
+    <table>
+      <thead>
         <tr>
-          <td>Tution Fee</td>
-          <td>${data.feeStructure.tutionFee}</td>
+          <th>Month</th>
+          <th>Fee Head</th>
+          <th>Total Value</th>
+          <th>Receipt</th>
+          <th>Waiver</th>
+          <th>Paid</th>
+          <th>Pending</th>
         </tr>
-        <tr>
-          <td>Transport Fee</td>
-          <td>${data.feeStructure.transportFee}</td>
-        </tr>
-        <tr>
-          <td>Development Fee</td>
-           <td>${data.feeStructure.developmentFee}</td>
-        </tr>
+      </thead>
+      <tbody>
+        ${detailRows}
       </tbody>
     </table>
 
     <div class="totals">
-      <p>Total Amount Due: Rs.${data.total}</p>
+      <p><strong>Payment Due Date:</strong> ${data.dueDate}</p>
     </div>
 
     <div class="footer">
-      <p>
-        <strong>Bank Transfer:</strong> Please make payments to
-        <b>School Micorservices</b>
-      </p>
+      <p><strong>Bank Transfer:</strong> Please make payments to <b>School Microservices</b></p>
       <p>Account Number: 777777 at <b>GBI</b></p>
-      <p><strong>Payment Due Date:</strong> ${data.dueDate}</p>
       <p>For any questions, contact us at gaurav.sahu2011@gmail.com</p>
     </div>
   </body>
 </html>
-
 `;
 }

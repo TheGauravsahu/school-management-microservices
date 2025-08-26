@@ -1,4 +1,3 @@
-import { env } from "./common/config/env";
 import logger from "./common/config/logger";
 import { startEmailConsumer } from "./workers/emailWoker";
 

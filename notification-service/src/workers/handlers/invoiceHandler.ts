@@ -26,11 +26,11 @@ export async function handleInvoiceCreated(
 
   // Send email
   await sendEmailWithAttachments(
-    data.email,
+    data.student.email,
     "Your Invoice",
     "<p>Attached is your invoice. Thank you!</p>",
     {
-      filename: `invoice-${data.id}.pdf`,
+      filename: `invoice-${data.invoiceId}.pdf`,
       content: pdfBuffer,
     }
   );

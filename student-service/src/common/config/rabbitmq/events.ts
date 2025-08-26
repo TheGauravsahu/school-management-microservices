@@ -10,10 +10,13 @@ export enum Events {
 // Define payloads for each event
 export interface EventPayloads {
   [Events.STUDENT_CREATED]: {
-    studentId: string;
+    _id: string;
+    name: string;
     email: string;
-    firstName: string;
-    lastName: string;
+    mobileNumber: string;
+    rollNumber: number;
+    class: number;
+    section: string;
   };
 
   [Events.PARENT_CREATED]: {

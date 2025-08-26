@@ -8,15 +8,19 @@ export enum Events {
 
   INVOICE_CREATED = "invoice.created",
   INVOICE_PAID = "invoice.paid",
+  INVOICE_OVERDUE = "invoice.overdue",
 }
 
 // Define payloads for each event
 export interface EventPayloads {
   [Events.STUDENT_CREATED]: {
-    studentId: string;
+    _id: string;
+    name: string;
     email: string;
-    firstName: string;
-    lastName: string;
+    mobileNumber: string;
+    rollNumber: number;
+    class: number;
+    section: string;
   };
 
   [Events.PARENT_CREATED]: {
@@ -54,38 +58,67 @@ export interface EventPayloads {
     classNumber: number;
   };
 
+  // invoices
   [Events.INVOICE_CREATED]: {
-    id: string;
-    studentId: string;
-    feeStructure: {
+    invoiceId: string;
+    student: {
       id: string;
-      createdAt: Date;
-      updatedAt: Date;
-      classNumber: number;
-      tutionFee: number;
-      transportFee: number | null;
-      developmentFee: number;
-      misc: number | null;
+      name: string;
+      email: string;
+      mobileNumber: string;
+      rollNo: number;
+      class: number;
+    };
+    session: {
+      id: string;
+      name: string;
     };
     total: number;
     dueDate: string;
-    email: string;
+    items: {
+      feeName: string;
+      amount: number;
+      month?: number;
+      year?: number;
+    }[];
   };
 
   [Events.INVOICE_PAID]: {
-    id: string;
-    studentId: string;
-    feeStructure: {
+    invoiceId: string;
+    student: {
       id: string;
-      createdAt: Date;
-      updatedAt: Date;
-      classNumber: number;
-      tutionFee: number;
-      transportFee: number | null;
-      developmentFee: number;
-      misc: number | null;
+      name: string;
+      email: string;
+      mobileNumber: string;
+      rollNumber: number;
+      class: number;
+      section: string;
     };
-    total: number;
-    email: string;
+    session: {
+      id: string;
+      name: string;
+    };
+    amountPaid: number;
+    method: string;
+    date: string;
+  };
+
+  [Events.INVOICE_OVERDUE]: {
+    invoiceId: string;
+    student: {
+      id: string;
+      name: string;
+      email: string;
+      mobileNumber: string;
+      rollNumber: number;
+      class: number;
+      section: string;
+    };
+    session: {
+      id: string;
+      name: string;
+    };
+    dueDate: string;
+    pendingAmount: number;
   };
 }

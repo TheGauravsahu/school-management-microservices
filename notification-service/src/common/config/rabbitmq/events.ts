@@ -13,10 +13,13 @@ export enum Events {
 // Define payloads for each event
 export interface EventPayloads {
   [Events.STUDENT_CREATED]: {
-    studentId: string;
+    _id: string;
+    name: string;
     email: string;
-    firstName: string;
-    lastName: string;
+    mobileNumber: string;
+    rollNumber: number;
+    class: number;
+    section: string;
   };
 
   [Events.PARENT_CREATED]: {
@@ -55,37 +58,40 @@ export interface EventPayloads {
   };
 
   [Events.INVOICE_CREATED]: {
-    id: string;
-    studentId: string;
-    feeStructure: {
+    invoiceId: string;
+    student: {
       id: string;
-      createdAt: Date;
-      updatedAt: Date;
+      name: string;
+      rollNo?: number;
+      mobile?: string;
       classNumber: number;
-      tutionFee: number;
-      transportFee: number | null;
-      developmentFee: number;
-      misc: number | null;
+      email: string;
     };
-    total: number;
+    sessionName: string;
+    // Summary for page 1
+    monthlySummary: {
+      monthName: string;
+      generated: number;
+      receipt: number;
+      waiver: number;
+      pending: number;
+    }[];
+
+    // Detailed breakdown for page 2
+    monthlyDetails: {
+      monthName: string;
+      fees: {
+        headName: string;
+        totalValue: number;
+        receipt: number;
+        waiver: number;
+        paid: number;
+        pending: number;
+      }[];
+    }[];
+
     dueDate: string;
-    email: string;
   };
 
-  [Events.INVOICE_PAID]: {
-    id: string;
-    studentId: string;
-    feeStructure: {
-      id: string;
-      createdAt: Date;
-      updatedAt: Date;
-      classNumber: number;
-      tutionFee: number;
-      transportFee: number | null;
-      developmentFee: number;
-      misc: number | null;
-    };
-    total: number;
-    email: string;
-  };
+  [Events.INVOICE_PAID]: {};
 }
